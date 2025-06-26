@@ -1,0 +1,5 @@
+.env
+.venv
+_*
+base_dados
+entrada_dados
