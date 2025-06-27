@@ -85,9 +85,37 @@ O projeto é composto por vários módulos, cada um com uma responsabilidade esp
     GEMINI_API_KEY="SUA_CHAVE_API_DO_GEMINI"
     EMAIL_REMETENTE="seu_email@gmail.com"
     SENHA_EMAIL="sua_senha_de_app_de_16_digitos"
-    PASTA_BASE="Caminho/Para/Sua/Pasta/base_dados"
+    PASTA_BASE="/caminho/absoluto/para/sua/pasta/base_dados"
     ```
+    *   **Importante:** Certifique-se de que a pasta especificada em `PASTA_BASE` exista. Se não existir, crie-a manualmente.
+
 6.  **Configure a API do Google Drive:** Siga as instruções do **Passo 0** da documentação do workflow para gerar o arquivo `credentials.json` e coloque-o na raiz do projeto.
+    *   **Nota:** Após a primeira autenticação com o Google Drive, um arquivo `token.json` será gerado automaticamente na raiz do projeto para armazenar suas credenciais de acesso.
+
+##  Estrutura de Pastas Essenciais
+
+Para o correto funcionamento do sistema, as seguintes pastas são esperadas na raiz do projeto:
+
+-   `base_dados/`: Esta é a pasta referenciada pela variável `PASTA_BASE` no seu arquivo `.env`. É onde os arquivos JSON intermediários (`elo-carga_*.json`, `acompanhamento_carga_*.json`) e o arquivo do banco de dados (`igreja_dados.db`) serão armazenados ou lidos.
+-   `entrada_dados/`: (Opcional, mas recomendado para organização) Sugere-se usar esta pasta para armazenar os arquivos `.txt` de entrada com os dados dos visitantes e o `acolhedores.csv`.
+
+### Exemplo de Arquivos de Entrada:
+
+**`entrada_dados/visitantes_exemplo.txt` (para `generate_json.py`):**
+```
+Nome: João Silva, Idade: 30, Celular: 99999-8888, Acolhedor: Maria Acolhedora
+Nome: Ana Souza, Celular: 98765-4321, Acolhedor: João Acolhedor
+Nome: Pedro Santos, Idade: 25, Acolhedor: Maria Acolhedora
+Nome: Carla Lima, Idade: 40, Celular: 91234-5678, Acolhedor: Pedro Acolhedor
+```
+
+**`entrada_dados/acolhedores.csv` (para `load_acolhedores.py`):**
+```csv
+acolhedor_nome,acolhedor_email,nome_lider_gps
+João Acolhedor,joao.acolhedor@seuemail.com,Líder Exemplo 1
+Maria Acolhedora,maria.acolhedora@seuemail.com,Líder Exemplo 1
+Pedro Acolhedor,pedro.acolhedor@seuemail.com,L��der Exemplo 2
+```
 
 ##  Como Executar a Aplicação
 
@@ -98,3 +126,76 @@ streamlit run app_dashboard.py
 ```
 
 Uma janela no seu navegador será aberta com a aplicação pronta para uso.
+
+## Como Executar os Scripts Individualmente
+
+Além do painel de controle, você pode executar cada script Python diretamente via terminal. Certifique-se de que seu ambiente virtual esteja ativado (`source .venv/bin/activate` ou `.\.venv\Scripts\activate`).
+
+**Configuração Inicial:**
+
+-   **`setup_database.py`**: Cria o banco de dados e as tabelas.
+    ```bash
+    python setup_database.py
+    ```
+
+**Carga de Dados:**
+
+-   **`generate_json.py`**: Gera um arquivo JSON estruturado a partir de um TXT de visitantes.
+    ```bash
+    python generate_json.py <caminho_para_o_arquivo_txt>
+    # Exemplo: python generate_json.py entrada_dados/visitantes_exemplo.txt
+    ```
+
+-   **`load_database.py`**: Carrega visitantes de um arquivo JSON para o banco de dados.
+    ```bash
+    python load_database.py <caminho_para_o_arquivo_json>
+    # Exemplo: python load_database.py base_dados/elo-carga_2023-10-27.json
+    ```
+
+-   **`load_acolhedores.py`**: Carrega dados de acolhedores de um CSV para o banco de dados. Pode usar uma variável de ambiente ou argumento.
+    ```bash
+    # Opção 1: Usando variável de ambiente (recomendado para automação)
+    export ACOLHEDORES_CSV_PATH="entrada_dados/acolhedores.csv" # macOS/Linux
+    # set ACOLHEDORES_CSV_PATH="entrada_dados/acolhedores.csv" # Windows
+    python load_acolhedores.py
+
+    # Opção 2: Passando o caminho como argumento
+    python load_acolhedores.py --caminho_csv entrada_dados/acolhedores.csv
+    ```
+
+**Comunicação e Acompanhamento:**
+
+-   **`send_emails.py`**: Envia e-mails de notificação para os acolhedores.
+    ```bash
+    python send_emails.py
+    ```
+
+-   **`processar_e_gerar_json_respostas.py`**: Processa respostas de e-mails e gera um JSON de acompanhamento.
+    ```bash
+    python processar_e_gerar_json_respostas.py
+    ```
+
+-   **`carregar_respostas.py`**: Atualiza o status dos visitantes no banco de dados com base no JSON de acompanhamento.
+    ```bash
+    python carregar_respostas.py <caminho_para_o_arquivo_json_respostas>
+    # Exemplo: python carregar_respostas.py base_dados/acompanhamento_carga_2023-10-27.json
+    ```
+
+**Sincronização com Google Drive:**
+
+-   **`upload_drive.py`**: Faz upload do banco de dados para o Google Drive.
+    ```bash
+    python upload_drive.py
+    ```
+
+-   **`download_drive.py`**: Faz download do banco de dados do Google Drive.
+    ```bash
+    python download_drive.py
+    ```
+
+**Interface de Linha de Comando Alternativa:**
+
+-   **`gerenciador.py`**: Oferece uma interface de linha de comando interativa para todas as funções.
+    ```bash
+    python gerenciador.py
+    ```

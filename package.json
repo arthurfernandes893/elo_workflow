@@ -1,0 +1,14 @@
+{
+    "name": "my-node-project",
+    "version": "1.0.0",
+    "description": "A Node.js project utilizing the @google/gemini-cli package.",
+    "main": "src/index.js",
+    "scripts": {
+      "start": "node src/index.js"
+    },
+    "dependencies": {
+      "@google/gemini-cli": "^1.0.0"
+    },
+    "author": "",
+    "license": "ISC"
+  }

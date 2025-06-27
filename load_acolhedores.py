@@ -79,10 +79,16 @@ def carregar_acolhedores(caminho_csv: str):
     print("-----------------------------------------")
 
 
+import os
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script para carregar acolhedores de um arquivo CSV para o banco de dados.")
-    # Argumento posicional: o usuário deve fornecer o caminho do arquivo
-    parser.add_argument('caminho_csv', help="Caminho para o arquivo acolhedores.csv a ser carregado.")
+    parser.add_argument('--caminho_csv', help="Caminho para o arquivo acolhedores.csv a ser carregado. Se não fornecido, tentará usar a variável de ambiente ACOLHEDORES_CSV_PATH.")
     args = parser.parse_args()
-    
-    carregar_acolhedores(args.caminho_csv)
+
+    csv_path = args.caminho_csv or os.getenv('ACOLHEDORES_CSV_PATH')
+
+    if not csv_path:
+        print("ERRO: O caminho para o arquivo CSV n��o foi fornecido. Use --caminho_csv ou defina a variável de ambiente ACOLHEDORES_CSV_PATH.")
+    else:
+        carregar_acolhedores(csv_path)
