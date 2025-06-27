@@ -9,8 +9,18 @@ from googleapiclient.http import MediaFileUpload
 # Permissões necessárias. Se você mudar isso, delete o arquivo token.json.
 SCOPES = ['https://www.googleapis.com/auth/drive']
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # --- Configurações ---
 NOME_ARQUIVO_LOCAL = 'igreja_dados.db'
+PASTA_BASE = os.getenv('PASTA_BASE')
+if not PASTA_BASE:
+    print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
+    exit(1)
+CAMINHO_ARQUIVO_DB = os.path.join(PASTA_BASE, NOME_ARQUIVO_LOCAL)
 NOME_PASTA_DRIVE = 'AutomacaoIgrejaDB' # A pasta que será criada no seu Drive
 
 def autenticar():
@@ -30,8 +40,8 @@ def autenticar():
 
 def upload_arquivo_db():
     """Encontra ou cria a pasta no Drive e faz o upload/update do arquivo do DB."""
-    if not os.path.exists(NOME_ARQUIVO_LOCAL):
-        print(f"ERRO: Arquivo local '{NOME_ARQUIVO_LOCAL}' não encontrado.")
+    if not os.path.exists(CAMINHO_ARQUIVO_DB):
+        print(f"ERRO: Arquivo local '{CAMINHO_ARQUIVO_DB}' não encontrado.")
         return
 
     creds = autenticar()
@@ -61,7 +71,7 @@ def upload_arquivo_db():
             spaces='drive'
         ).execute()
         
-        media = MediaFileUpload(NOME_ARQUIVO_LOCAL, mimetype='application/x-sqlite3')
+        media = MediaFileUpload(CAMINHO_ARQUIVO_DB, mimetype='application/x-sqlite3')
         
         if not response['files']:
             # Criar novo arquivo

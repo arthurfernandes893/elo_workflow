@@ -57,9 +57,9 @@ O projeto é composto por vários módulos, cada um com uma responsabilidade esp
 
 -   `carregar_respostas.py`: Lê o JSON de acompanhamento e atualiza os registros correspondentes na tabela `acolhimento`.
 
--   `upload_drive.py`: Autentica-se na API do Google Drive e faz o upload (ou atualização) do arquivo `igreja_dados.db`.
+-   `upload_drive.py`: Autentica-se na API do Google Drive e faz o upload (ou atualização) do arquivo `igreja_dados.db` da pasta `base_dados`.
 
--   `download_drive.py`: Autentica-se na API do Google Drive e baixa a versão mais recente do `igreja_dados.db`, fazendo um backup da versão local anterior.
+-   `download_drive.py`: Autentica-se na API do Google Drive e baixa a versão mais recente do `igreja_dados.db` para a pasta `base_dados`, fazendo um backup da versão local anterior.
 
 -   `gerenciador.py`: Uma alternativa ao dashboard, oferece uma interface de linha de comando para executar todas as mesmas funções.
 

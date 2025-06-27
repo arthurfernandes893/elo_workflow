@@ -1,16 +1,19 @@
+import os
+import dotenv
 import sqlite3
 import csv
 import argparse
 
-NOME_BANCO_DADOS = 'igreja_dados.db'
+dotenv.load_dotenv()  # Load environment variables from .env file
 
-def carregar_acolhedores(caminho_csv: str):
-    """
-    Carrega dados de acolhedores de um arquivo CSV para o banco de dados.
-    O script é idempotente: ele não inserirá acolhedores cujo e-mail já exista.
-    """
+def carregar_acolhedores(caminho_csv):
+    pasta_base = os.getenv('PASTA_BASE')
+    if not pasta_base:
+        print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
+        return
+    caminho_banco = os.path.join(pasta_base, NOME_BANCO_DADOS)
     try:
-        conn = sqlite3.connect(NOME_BANCO_DADOS)
+        conn = sqlite3.connect(caminho_banco)
         cursor = conn.cursor()
         # Habilita o suporte a chaves estrangeiras para garantir a integridade
         cursor.execute("PRAGMA foreign_keys = ON;")
@@ -78,17 +81,15 @@ def carregar_acolhedores(caminho_csv: str):
     print(f"Erros (Linhas com dados faltando): {logs['erro_linha']}")
     print("-----------------------------------------")
 
-
-import os
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script para carregar acolhedores de um arquivo CSV para o banco de dados.")
     parser.add_argument('--caminho_csv', help="Caminho para o arquivo acolhedores.csv a ser carregado. Se não fornecido, tentará usar a variável de ambiente ACOLHEDORES_CSV_PATH.")
     args = parser.parse_args()
 
+    # Load CSV path from argument or environment variable
     csv_path = args.caminho_csv or os.getenv('ACOLHEDORES_CSV_PATH')
 
     if not csv_path:
-        print("ERRO: O caminho para o arquivo CSV n��o foi fornecido. Use --caminho_csv ou defina a variável de ambiente ACOLHEDORES_CSV_PATH.")
+        print("ERRO: O caminho para o arquivo CSV não foi fornecido. Use --caminho_csv ou defina a variável de ambiente ACOLHEDORES_CSV_PATH.")
     else:
         carregar_acolhedores(csv_path)

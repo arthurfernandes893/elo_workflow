@@ -1,8 +1,19 @@
 import sqlite3
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 NOME_BANCO_DADOS = 'igreja_dados.db'
+PASTA_BASE = os.getenv('PASTA_BASE')
 
-conn = sqlite3.connect(NOME_BANCO_DADOS)
+if not PASTA_BASE:
+    print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
+    exit(1)
+
+caminho_banco = os.path.join(PASTA_BASE, NOME_BANCO_DADOS)
+
+conn = sqlite3.connect(caminho_banco)
 cursor = conn.cursor()
 
 # Habilita o suporte a chaves estrangeiras no SQLite

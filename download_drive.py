@@ -9,7 +9,10 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
 # Reutilizando a função de autenticação e configurações
-from upload_drive import autenticar, NOME_ARQUIVO_LOCAL, NOME_PASTA_DRIVE
+from upload_drive import autenticar, NOME_ARQUIVO_LOCAL, NOME_PASTA_DRIVE, CAMINHO_ARQUIVO_DB
+from dotenv import load_dotenv
+
+load_dotenv()
 
 PASTA_BACKUP_LOCAL = 'backup_bases'
 
@@ -35,14 +38,14 @@ def download_arquivo_db():
         print(f"Arquivo '{NOME_ARQUIVO_LOCAL}' encontrado no Drive (ID: {file_id}).")
 
         # 2. Fazer backup do arquivo local antigo, se existir
-        if os.path.exists(NOME_ARQUIVO_LOCAL):
-            print(f"Arquivo local '{NOME_ARQUIVO_LOCAL}' encontrado. Fazendo backup...")
+        if os.path.exists(CAMINHO_ARQUIVO_DB):
+            print(f"Arquivo local '{CAMINHO_ARQUIVO_DB}' encontrado. Fazendo backup...")
             # Garante que a pasta de backup exista
             os.makedirs(PASTA_BACKUP_LOCAL, exist_ok=True)
             # Cria um nome de backup com data e hora
             timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             backup_path = os.path.join(PASTA_BACKUP_LOCAL, f'{NOME_ARQUIVO_LOCAL}.bak_{timestamp}')
-            os.rename(NOME_ARQUIVO_LOCAL, backup_path)
+            os.rename(CAMINHO_ARQUIVO_DB, backup_path)
             print(f"Backup criado em: {backup_path}")
 
         # 3. Baixar o novo arquivo
@@ -57,10 +60,10 @@ def download_arquivo_db():
             print(f'Download {int(status.progress() * 100)}%.')
             
         # Salva o conteúdo baixado no arquivo local
-        with open(NOME_ARQUIVO_LOCAL, 'wb') as f:
+        with open(CAMINHO_ARQUIVO_DB, 'wb') as f:
             f.write(fh.getvalue())
             
-        print(f"\nSUCESSO: '{NOME_ARQUIVO_LOCAL}' baixado e atualizado.")
+        print(f"\nSUCESSO: '{CAMINHO_ARQUIVO_DB}' baixado e atualizado.")
 
     except HttpError as error:
         print(f'Ocorreu um erro: {error}')

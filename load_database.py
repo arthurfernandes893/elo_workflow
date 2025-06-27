@@ -28,7 +28,8 @@ def carregar_base_de_dados(data_param: str):
     with open(caminho_arquivo, 'r', encoding='utf-8') as f:
         registros = json.load(f)
 
-    conn = sqlite3.connect('igreja_dados.db')
+        caminho_banco = os.path.join(pasta_base, 'igreja_dados.db')
+    conn = sqlite3.connect(caminho_banco)
     cursor = conn.cursor()
     # Habilita o suporte a chaves estrangeiras
     cursor.execute("PRAGMA foreign_keys = ON;")

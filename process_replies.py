@@ -16,7 +16,12 @@ SENHA_EMAIL = os.getenv("SENHA_EMAIL")
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def processar_respostas():
-    conn = sqlite3.connect('igreja_dados.db')
+        pasta_base = os.getenv('PASTA_BASE')
+    if not pasta_base:
+        print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
+        return
+    caminho_banco = os.path.join(pasta_base, 'igreja_dados.db')
+    conn = sqlite3.connect(caminho_banco)
     cursor = conn.cursor()
 
     try:

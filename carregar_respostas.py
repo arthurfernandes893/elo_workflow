@@ -27,7 +27,8 @@ def carregar_respostas_para_base(data_param: str):
     with open(caminho_arquivo, 'r', encoding='utf-8') as f:
         registros_de_update = json.load(f)
 
-    conn = sqlite3.connect('igreja_dados.db')
+        caminho_banco = os.path.join(pasta_base, 'igreja_dados.db')
+    conn = sqlite3.connect(caminho_banco)
     cursor = conn.cursor()
 
     logs = {'sucesso': 0, 'nao_encontrado': 0, 'erros': 0}
