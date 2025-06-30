@@ -9,7 +9,7 @@ import os
 load_dotenv()
 
 def enviar_notificacoes_personalizadas():
-        pasta_base = os.getenv('PASTA_BASE')
+    pasta_base = os.getenv('PASTA_BASE')
     if not pasta_base:
         print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
         return

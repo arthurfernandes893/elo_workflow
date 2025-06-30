@@ -16,7 +16,7 @@ SENHA_EMAIL = os.getenv("SENHA_EMAIL")
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def processar_respostas():
-        pasta_base = os.getenv('PASTA_BASE')
+    pasta_base = os.getenv('PASTA_BASE')
     if not pasta_base:
         print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
         return
