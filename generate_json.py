@@ -7,19 +7,20 @@ from dotenv import load_dotenv
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+
 def gerar_arquivo_carga(caminho_arquivo_txt: str):
     """
     Lê um arquivo de texto, envia para o Gemini para estruturação
     e salva o resultado em um arquivo JSON nomeado.
     """
     try:
-        with open(caminho_arquivo_txt, 'r', encoding='utf-8') as f:
+        with open(caminho_arquivo_txt, "r", encoding="utf-8") as f:
             dados_entrada = f.read()
     except FileNotFoundError:
         print(f"Erro: Arquivo de entrada não encontrado em '{caminho_arquivo_txt}'")
         return
 
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel("gemini-pro")
 
     # Prompt engenheirado para atender aos requisitos
     prompt = f"""
@@ -49,18 +50,18 @@ def gerar_arquivo_carga(caminho_arquivo_txt: str):
         dados_estruturados = json.loads(json_text)
 
         # Define o nome do arquivo de saída
-        data_hoje = datetime.now().strftime('%d%m%y')
-        nome_arquivo_saida = f'elo-carga_{data_hoje}.json'
+        data_hoje = datetime.now().strftime("%d%m%y")
+        nome_arquivo_saida = f"elo-carga_{data_hoje}.json"
 
         # Pega o caminho da pasta base a partir da variável de ambiente
-        pasta_base = os.getenv('PASTA_BASE')
+        pasta_base = os.getenv("PASTA_BASE")
         if not pasta_base:
             raise ValueError("Variável de ambiente PASTA_BASE não definida.")
 
         caminho_completo_saida = os.path.join(pasta_base, nome_arquivo_saida)
 
         # Salva o arquivo JSON
-        with open(caminho_completo_saida, 'w', encoding='utf-8') as f:
+        with open(caminho_completo_saida, "w", encoding="utf-8") as f:
             json.dump(dados_estruturados, f, indent=4, ensure_ascii=False)
 
         print("\nAnálise do Gemini completa.")
@@ -71,7 +72,8 @@ def gerar_arquivo_carga(caminho_arquivo_txt: str):
         print("Resposta recebida do Gemini:")
         print(response.text)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Exemplo de como chamar o script.
     # Pode ser melhorado com argparse para receber o caminho do arquivo como argumento.
     arquivo_de_entrada = "entrada_de_dados/entrada_dia_260625.txt"
