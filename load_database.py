@@ -42,7 +42,7 @@ def carregar_base_de_dados(data_param: str):
 
         if "Descartar" in plano:
             print(
-                f"LOG: Registro para '{reg.get('nome', 'N/A')}' descartado conforme plano de ação."
+                f"LOG: Registro para '{reg.get('nome', 'N/A')}' descartado conforme plano de ação: {plano}."
             )
             logs["descartado"] += 1
             continue
