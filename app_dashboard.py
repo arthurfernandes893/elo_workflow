@@ -14,6 +14,7 @@ from carregar_respostas import carregar_respostas_para_base
 from upload_drive import upload_arquivo_db
 from download_drive import download_arquivo_db
 
+
 # --- Função Utilitária para Capturar Logs ---
 def executar_e_capturar_output(funcao, *args, **kwargs):
     """
@@ -21,7 +22,7 @@ def executar_e_capturar_output(funcao, *args, **kwargs):
     """
     stdout_original = sys.stdout
     sys.stdout = buffer_saida = io.StringIO()
-    
+
     try:
         funcao(*args, **kwargs)
         output = buffer_saida.getvalue()
@@ -29,15 +30,18 @@ def executar_e_capturar_output(funcao, *args, **kwargs):
         output = f"Ocorreu uma exceção inesperada:\n{e}"
     finally:
         sys.stdout = stdout_original
-        
+
     return output
+
 
 # --- Interface do Streamlit ---
 
 st.set_page_config(page_title="Controle de Adoção ELO", layout="wide")
 
 st.title(" Painel de Controle - ELO")
-st.markdown("Use esta interface para executar os diferentes passos do fluxo de trabalho.")
+st.markdown(
+    "Use esta interface para executar os diferentes passos do fluxo de trabalho."
+)
 
 # --- Colunas para Layout ---
 col1, col2 = st.columns(2)
@@ -48,28 +52,40 @@ with col1:
     st.info("Comece por aqui: gere os arquivos JSON e carregue os dados nas tabelas.")
 
     # 1.1 Gerar JSON de Acolhimento
-    with st.expander("Gerar intermediário de Acolhimento (a partir de um arquivo terminando com .txt no nome)"):
-        uploaded_txt = st.file_uploader("Escolha o arquivo .txt com as informações dos visitantes")
+    with st.expander(
+        "Gerar intermediário de Acolhimento (a partir de um arquivo terminando com .txt no nome)"
+    ):
+        uploaded_txt = st.file_uploader(
+            "Escolha o arquivo .txt com as informações dos visitantes"
+        )
         if st.button("Gerar Arquivo JSON de Acolhimento"):
             if uploaded_txt is not None:
                 # Salva o arquivo temporariamente para que a função possa lê-lo
                 with open("temp_input.txt", "wb") as f:
                     f.write(uploaded_txt.getbuffer())
-                
+
                 with st.spinner("Processando com o Gemini para estruturar os dados..."):
-                    logs = executar_e_capturar_output(gerar_arquivo_carga, "temp_input.txt")
+                    logs = executar_e_capturar_output(
+                        gerar_arquivo_carga, "temp_input.txt"
+                    )
                     st.text_area("Logs da Geração:", logs, height=200)
-                os.remove("temp_input.txt") # Limpa o arquivo temporário
+                os.remove("temp_input.txt")  # Limpa o arquivo temporário
             else:
                 st.warning("Por favor, carregue um arquivo .txt primeiro.")
 
     # 1.2 Carregar Acolhimento
-    with st.expander("Carregar arquivo estruturado com os visitantes para o Banco de Dados"):
-        data_acolhimento = st.text_input("Digite a data do arquivo de carga (ddmmyy)", key="data_acolhimento")
+    with st.expander(
+        "Carregar arquivo estruturado com os visitantes para o Banco de Dados"
+    ):
+        data_acolhimento = st.text_input(
+            "Digite a data do arquivo de carga (ddmmyy)", key="data_acolhimento"
+        )
         if st.button("Carregar Visitantes na Base"):
             if data_acolhimento:
                 with st.spinner("Carregando dados..."):
-                    logs = executar_e_capturar_output(carregar_base_de_dados, data_acolhimento)
+                    logs = executar_e_capturar_output(
+                        carregar_base_de_dados, data_acolhimento
+                    )
                     st.text_area("Logs da Carga:", logs, height=200)
             else:
                 st.warning("Por favor, insira a data do arquivo.")
@@ -81,9 +97,11 @@ with col1:
             if uploaded_csv is not None:
                 with open("temp_acolhedores.csv", "wb") as f:
                     f.write(uploaded_csv.getbuffer())
-                
+
                 with st.spinner("Carregando acolhedores..."):
-                    logs = executar_e_capturar_output(carregar_acolhedores, "temp_acolhedores.csv")
+                    logs = executar_e_capturar_output(
+                        carregar_acolhedores, "temp_acolhedores.csv"
+                    )
                     st.text_area("Logs da Carga de Acolhedores:", logs, height=200)
                 os.remove("temp_acolhedores.csv")
             else:
@@ -111,17 +129,24 @@ with col2:
 
     # 2.3 Carregar Respostas
     with st.expander("Carregar Respostas para o Banco de Dados"):
-        data_respostas = st.text_input("Digite a data do arquivo de acompanhamento (ddmmyyyy)", key="data_respostas")
+        data_respostas = st.text_input(
+            "Digite a data do arquivo de acompanhamento (ddmmyyyy)",
+            key="data_respostas",
+        )
         if st.button("Carregar Respostas na Base"):
             if data_respostas:
                 with st.spinner("Atualizando banco de dados com as respostas..."):
-                    logs = executar_e_capturar_output(carregar_respostas_para_base, data_respostas)
+                    logs = executar_e_capturar_output(
+                        carregar_respostas_para_base, data_respostas
+                    )
                     st.text_area("Logs da Carga de Respostas:", logs, height=150)
             else:
                 st.warning("Por favor, insira a data do arquivo.")
 
     st.header("3. Sincronização com Google Drive")
-    st.warning("A primeira execução de cada uma destas ações abrirá uma janela no seu navegador para autorização.")
+    st.warning(
+        "A primeira execução de cada uma destas ações abrirá uma janela no seu navegador para autorização."
+    )
 
     # 3.1 Upload
     with st.expander("Enviar Banco de Dados para o Google Drive"):

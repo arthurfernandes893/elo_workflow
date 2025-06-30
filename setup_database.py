@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-NOME_BANCO_DADOS = 'igreja_dados.db'
-PASTA_BASE = os.getenv('PASTA_BASE')
+NOME_BANCO_DADOS = "igreja_dados.db"
+PASTA_BASE = os.getenv("PASTA_BASE")
 
 if not PASTA_BASE:
     print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
@@ -20,15 +20,18 @@ cursor = conn.cursor()
 cursor.execute("PRAGMA foreign_keys = ON;")
 
 # 1. Tabela 'gps'
-cursor.execute('''
+cursor.execute(
+    """
 CREATE TABLE IF NOT EXISTS gps (
     id_gps INTEGER PRIMARY KEY AUTOINCREMENT,
     nome_lider_gps VARCHAR(45) NOT NULL UNIQUE
 );
-''')
+"""
+)
 
 # 2. Tabela 'acolhedores'
-cursor.execute('''
+cursor.execute(
+    """
 CREATE TABLE IF NOT EXISTS acolhedores (
     id_acolhedor INTEGER PRIMARY KEY AUTOINCREMENT,
     acolhedor_nome VARCHAR(45) NOT NULL,
@@ -36,10 +39,12 @@ CREATE TABLE IF NOT EXISTS acolhedores (
     id_gps INTEGER,
     FOREIGN KEY (id_gps) REFERENCES gps(id_gps)
 );
-''')
+"""
+)
 
 # 3. Tabela 'acolhimento'
-cursor.execute('''
+cursor.execute(
+    """
 CREATE TABLE IF NOT EXISTS acolhimento (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome VARCHAR(70) NOT NULL,
@@ -52,7 +57,8 @@ CREATE TABLE IF NOT EXISTS acolhimento (
     id_acolhedor INTEGER,
     FOREIGN KEY (id_acolhedor) REFERENCES acolhedores(id_acolhedor)
 );
-''')
+"""
+)
 
 print("Banco de dados e tabelas verificados/criados com sucesso.")
 
@@ -60,18 +66,22 @@ print("Banco de dados e tabelas verificados/criados com sucesso.")
 # Você precisa ter pelo menos um grupo e um acolhedor para o sistema funcionar.
 # Execute esta parte apenas uma vez ou quando precisar adicionar mais membros.
 try:
-    cursor.execute("INSERT INTO gps (nome_lider_gps) VALUES ('Líder Exemplo 1'), ('Líder Exemplo 2');")
+    cursor.execute(
+        "INSERT INTO gps (nome_lider_gps) VALUES ('Líder Exemplo 1'), ('Líder Exemplo 2');"
+    )
     print("Grupos de exemplo inseridos.")
 except sqlite3.IntegrityError:
     print("Grupos de exemplo já existem.")
 
 try:
-    cursor.execute("""
+    cursor.execute(
+        """
     INSERT INTO acolhedores (acolhedor_nome, acolhedor_email, id_gps) VALUES 
         ('João Acolhedor', 'joao.acolhedor@seuemail.com', 1),
         ('Maria Acolhedora', 'maria.acolhedora@seuemail.com', 1),
         ('Pedro Acolhedor', 'pedro.acolhedor@seuemail.com', 2);
-    """)
+    """
+    )
     print("Acolhedores de exemplo inseridos.")
 except sqlite3.IntegrityError:
     print("Acolhedores de exemplo já existem.")
