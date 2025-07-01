@@ -20,7 +20,7 @@ def gerar_arquivo_carga(caminho_arquivo_txt: str):
         print(f"Erro: Arquivo de entrada não encontrado em '{caminho_arquivo_txt}'")
         return
 
-    model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("gemini-2.5-flash")
 
     # Prompt engenheirado para atender aos requisitos
     prompt = f"""
