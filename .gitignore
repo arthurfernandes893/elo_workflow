@@ -5,3 +5,4 @@ base_dados
 entrada_dados
 token.json
 credentials.json
+*.db
