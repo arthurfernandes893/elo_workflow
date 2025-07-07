@@ -9,13 +9,14 @@ dotenv.load_dotenv()  # Load environment variables from .env file
 
 def carregar_acolhedores(caminho_csv):
     pasta_base = os.getenv("PASTA_BASE")
-    if not pasta_base:
-        print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
+    NOME_BANCO_DADOS = os.getenv("NOME_BANCO_DADOS")
+    
+    if not pasta_base or not NOME_BANCO_DADOS:
+        print("Erro: Variáveis de ambiente não estão configuradas.")
         return
-    NOME_BANCO_DADOS = os.getenv(
-        "NOME_BANCO_DADOS", "default_database_name.db"
-    )  # Define a default value if not set
+
     caminho_banco = os.path.join(pasta_base, NOME_BANCO_DADOS)
+    
     try:
         conn = sqlite3.connect(caminho_banco)
         cursor = conn.cursor()
