@@ -61,15 +61,14 @@ def gerar_arquivo_carga(caminho_arquivo_txt: str):
         json_text = response.text.strip().replace("```json", "").replace("```", "")
         dados_estruturados = json.loads(json_text)
 
-        # Extrai a data do nome do arquivo de entrada
+        # Extrai a data do JSON estruturado
         try:
-            data_arquivo = dados_estruturados.data
-            datetime.strptime(data_arquivo, "%d%m%y")  # Valida o formato da data
+            data_arquivo = datetime.strptime(dados_estruturados["data"], "%d/%m/%Y")  # Valida o formato da data
         except (IndexError, ValueError):
-            raise ValueError("O nome do arquivo de entrada não segue o padrão esperado: adocao-ddmmyy.txt")
+            raise ValueError("a data informada no arquivo não esta no formato dd/mm/yyyy.")
 
         # Define o nome do arquivo de saída usando a data extraída
-        nome_arquivo_saida = f"EloCargaDados_{data_arquivo}.json"
+        nome_arquivo_saida = f"EloCargaDados_{data_arquivo.strftime('%d%m%Y')}.json"
 
         # Pega o caminho da pasta base a partir da variável de ambiente
         pasta_base = os.getenv("PASTA_BASE")

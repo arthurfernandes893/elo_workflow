@@ -78,7 +78,7 @@ with col1:
         "Carregar arquivo estruturado com os visitantes para o Banco de Dados"
     ):
         data_acolhimento = st.text_input(
-            "Digite a data do arquivo de carga (ddmmyy)", key="data_acolhimento"
+            "Digite a data do arquivo de carga (ddmmyyyy)", key="data_acolhimento"
         )
         if st.button("Carregar Visitantes na Base"):
             if data_acolhimento:

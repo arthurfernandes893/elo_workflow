@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS acolhimento (
     idade INTEGER,
     numero VARCHAR(45),
     decisao VARCHAR(45),
+    data_decisao DATETIME NOT NULL,
     data_carga DATETIME DEFAULT CURRENT_TIMESTAMP,
     status_contato VARCHAR(45) DEFAULT 'Pendente',
     observacoes VARCHAR(255),
