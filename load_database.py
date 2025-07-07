@@ -17,7 +17,7 @@ def carregar_base_de_dados(data_param: str):
         print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
         return
 
-    nome_arquivo = f"elo-carga_{data_param}.json"
+    nome_arquivo = f"EloCargaDados_{data_param}.json"
     caminho_arquivo = os.path.join(pasta_base, nome_arquivo)
 
     if not os.path.exists(caminho_arquivo):
@@ -28,7 +28,6 @@ def carregar_base_de_dados(data_param: str):
 
     with open(caminho_arquivo, "r", encoding="utf-8") as f:
         registros = json.load(f)
-
         caminho_banco = os.path.join(pasta_base, "igreja_dados.db")
     conn = sqlite3.connect(caminho_banco)
     cursor = conn.cursor()
@@ -36,8 +35,9 @@ def carregar_base_de_dados(data_param: str):
     cursor.execute("PRAGMA foreign_keys = ON;")
 
     logs = {"sucesso": 0, "descartado": 0, "erros_acolhedor": 0}
+    data_decisao = registros["data"]
 
-    for reg in registros:
+    for reg in registros["lista"]:
         plano = reg.get("plano_de_acao", "")
 
         if "Descartar" in plano:
@@ -68,13 +68,14 @@ def carregar_base_de_dados(data_param: str):
         try:
             cursor.execute(
                 """
-                INSERT INTO acolhimento (nome, idade, numero, id_acolhedor)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor)
+                VALUES (?, ?, ?, ?, ?)
                 """,
                 (
                     reg.get("nome"),
                     reg.get("idade"),
                     reg.get("celular"),
+                    data_decisao,
                     id_acolhedor_db,
                 ),
             )
