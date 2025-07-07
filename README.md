@@ -89,8 +89,14 @@ O projeto é composto por vários módulos, cada um com uma responsabilidade esp
     ```
     *   **Importante:** Certifique-se de que a pasta especificada em `PASTA_BASE` exista. Se não existir, crie-a manualmente.
 
-6.  **Configure a API do Google Drive:** Siga as instruções do **Passo 0** da documentação do workflow para gerar o arquivo `credentials.json` e coloque-o na raiz do projeto.
-    *   **Nota:** Após a primeira autenticação com o Google Drive, um arquivo `token.json` será gerado automaticamente na raiz do projeto para armazenar suas credenciais de acesso.
+6.  **Configure a API do Google Drive:** Para que a funcionalidade de upload e download com o Google Drive funcione, você precisa autenticar o sistema com sua conta Google. Siga os passos abaixo:
+    *   **Acesse o Google Cloud Console:** Vá para [console.cloud.google.com](https://console.cloud.google.com/) e faça login com sua conta Google. Se você ainda não tiver um projeto, crie um novo.
+    *   **Ative a API do Google Drive:** No menu de navegação, vá para **APIs e Serviços > Biblioteca**. Procure por "Google Drive API" e clique em **Ativar**.
+    *   **Crie as Credenciais de Acesso:** Vá para **APIs e Serviços > Tela de permissão OAuth**. Selecione o tipo de usuário **Externo** e clique em **Criar**. Preencha as informações solicitadas (nome do aplicativo, e-mail de suporte, etc.) e clique em **Salvar e continuar**. Na tela de **Escopos**, não é necessário adicionar nenhum escopo. Clique em **Salvar e continuar**. Na tela de **Usuários de teste**, adicione seu próprio endereço de e-mail e clique em **Salvar e continuar**. Vá para **APIs e Serviços > Credenciais**. Clique em **Criar Credenciais > ID do cliente OAuth**. Selecione o tipo de aplicativo **App para computador**. Dê um nome para a credencial (ex: "Acolhimento App") e clique em **Criar**.
+    *   **Baixe o `credentials.json`:** Após a criação, uma janela pop-up mostrará seu ID e segredo do cliente. Clique em **Fazer o download do JSON**. Renomeie o arquivo baixado para `credentials.json`.
+    *   **Mova o `credentials.json` para o Projeto:** Coloque o arquivo `credentials.json` na raiz do seu projeto.
+    *   **Execute a Aplicação pela Primeira Vez:** Ao executar o `upload_drive.py` ou `download_drive.py` pela primeira vez (ou usando os botões no dashboard), uma janela do navegador será aberta pedindo para você autorizar o acesso à sua conta do Google Drive. Faça login e conceda as permissões necessárias. Após a autorização, um arquivo chamado `token.json` será criado automaticamente na raiz do projeto. Este arquivo armazena suas credenciais de acesso para que você não precise se autenticar novamente.
+    *   **Importante:** Nunca compartilhe seus arquivos `credentials.json` ou `token.json`. Se você receber um erro de "Aplicativo não verificado", clique em "Avançado" e depois em "Acessar (nome do seu aplicativo)".
 
 ##  Estrutura de Pastas Essenciais
 
