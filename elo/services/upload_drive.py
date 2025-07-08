@@ -11,7 +11,7 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 import os
 from dotenv import load_dotenv
-
+from .auth import autenticar
 load_dotenv()
 
 # --- Configurações ---
@@ -23,21 +23,6 @@ if not PASTA_BASE:
 CAMINHO_ARQUIVO_DB = os.path.join(PASTA_BASE, NOME_ARQUIVO_LOCAL)
 NOME_PASTA_DRIVE = "AutomacaoIgrejaDB"  # A pasta que será criada no seu Drive
 
-
-def autenticar():
-    """Realiza a autenticação com a API do Google Drive."""
-    creds = None
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
-    return creds
 
 
 def upload_arquivo_db():

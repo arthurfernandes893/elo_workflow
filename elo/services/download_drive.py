@@ -9,12 +9,13 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
 # Reutilizando a função de autenticação e configurações
-from services.upload_drive import (
-    autenticar,
+from .auth import autenticar
+from .upload_drive import (
     NOME_ARQUIVO_LOCAL,
     NOME_PASTA_DRIVE,
     CAMINHO_ARQUIVO_DB,
 )
+
 from dotenv import load_dotenv
 
 load_dotenv()
