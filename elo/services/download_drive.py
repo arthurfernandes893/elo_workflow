@@ -9,7 +9,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseDownload
 
 # Reutilizando a função de autenticação e configurações
-from upload_drive import (
+from services.upload_drive import (
     autenticar,
     NOME_ARQUIVO_LOCAL,
     NOME_PASTA_DRIVE,
@@ -19,7 +19,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PASTA_BACKUP_LOCAL = "backup_bases"
+PASTA_BACKUP_LOCAL = os.getenv("PASTA_BACKUP_LOCAL")
+
+if not PASTA_BACKUP_LOCAL:
+    print("Erro: Variável de ambiente PASTA_BACKUP_LOCAL não está configurada.")
+    exit(1)
 
 
 def download_arquivo_db():

@@ -4,15 +4,14 @@ import sys
 import io
 from datetime import datetime
 
-# Importa as funções de todos os nossos módulos de workflow
-from generate_json import gerar_arquivo_carga
-from load_database import carregar_base_de_dados
-from load_acolhedores import carregar_acolhedores
-from send_emails import enviar_notificacoes_personalizadas
-from processar_e_gerar_json_respostas import gerar_json_respostas
-from carregar_respostas import carregar_respostas_para_base
-from upload_drive import upload_arquivo_db
-from download_drive import download_arquivo_db
+from elo.services.generate_json import gerar_arquivo_carga
+from elo.database.load_database import carregar_base_de_dados
+from elo.database.load_acolhedores import carregar_acolhedores
+from elo.services.send_emails import enviar_notificacoes_personalizadas
+from elo.services.processar_e_gerar_json_respostas import gerar_json_respostas
+from elo.services.carregar_respostas import carregar_respostas_para_base
+from elo.services.upload_drive import upload_arquivo_db
+from elo.services.download_drive import download_arquivo_db
 
 
 # --- Função Utilitária para Capturar Logs ---

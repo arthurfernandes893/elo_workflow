@@ -2,10 +2,10 @@ import argparse
 
 # Importa as funções principais dos outros scripts.
 # Cada script deve ter sua lógica principal dentro de uma função para que possa ser importada.
-from generate_json import gerar_arquivo_carga
-from load_database import carregar_base_de_dados
-from load_acolhedores import carregar_acolhedores
-from send_emails import enviar_notificacoes_personalizadas
+from elo.services.generate_json import gerar_arquivo_carga
+from elo.database.load_database import carregar_base_de_dados
+from elo.database.load_acolhedores import carregar_acolhedores
+from elo.services.send_emails import enviar_notificacoes_personalizadas
 
 
 def main():

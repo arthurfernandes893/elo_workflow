@@ -4,12 +4,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-NOME_BANCO_DADOS = "igreja_dados.db"
+NOME_BANCO_DADOS = os.getenv("NOME_BANCO_DADOS")
 PASTA_BASE = os.getenv("PASTA_BASE")
 
 if not PASTA_BASE:
     print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
     exit(1)
+
+if not NOME_BANCO_DADOS:
+    print("Erro: Variável de ambiente NOME_BANCO_DADOS não está configurada.")
+    exit(2)
 
 caminho_banco = os.path.join(PASTA_BASE, NOME_BANCO_DADOS)
 
