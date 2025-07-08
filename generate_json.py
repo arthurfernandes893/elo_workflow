@@ -3,21 +3,33 @@ import os
 import json
 from datetime import datetime
 from dotenv import load_dotenv
+from typing import Optional
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-def gerar_arquivo_carga(caminho_arquivo_txt: str):
+def gerar_arquivo_carga(caminho_arquivo_txt: Optional[str] = None, dados_entrada_texto: Optional[str] = None):
     """
-    Lê um arquivo de texto, envia para o Gemini para estruturação
+    Lê dados de um arquivo de texto ou de uma string, envia para o Gemini para estruturação
     e salva o resultado em um arquivo JSON nomeado.
     """
-    try:
-        with open(caminho_arquivo_txt, "r", encoding="utf-8") as f:
-            dados_entrada = f.read()
-    except FileNotFoundError:
-        print(f"Erro: Arquivo de entrada não encontrado em '{caminho_arquivo_txt}'")
+    dados_entrada = None
+    if dados_entrada_texto:
+        dados_entrada = dados_entrada_texto
+    elif caminho_arquivo_txt:
+        try:
+            with open(caminho_arquivo_txt, "r", encoding="utf-8") as f:
+                dados_entrada = f.read()
+        except FileNotFoundError:
+            print(f"Erro: Arquivo de entrada não encontrado em '{caminho_arquivo_txt}'")
+            return
+    else:
+        print("Erro: Nenhum dado de entrada fornecido (nem arquivo, nem texto).")
+        return
+
+    if not dados_entrada:
+        print("Erro: Dados de entrada estão vazios.")
         return
 
     model = genai.GenerativeModel("gemini-2.5-flash")
@@ -31,11 +43,12 @@ def gerar_arquivo_carga(caminho_arquivo_txt: str):
     Em seguida estruture um campo de nome "lista" a partir dos dados fornecidos seguindo as regras abaixo:
     
     Regras para cada objeto:
-    1. As chaves devem ser "nome", "idade", "celular", "acolhedor" e "plano_de_acao".
+    1. As chaves devem ser "nome", "idade", "celular", "acolhedor", "plano_de_acao" e "HouM".
     2. Se as informações de "nome" ou "acolhedor" estiverem faltando, o "plano_de_acao" deve ser "Descartar registro por falta de dados essenciais".
     3. Se as informações de "idade" ou "celular" estiverem faltando (mas "nome" e "acolhedor" estiverem presentes), o "plano_de_acao" deve ser "Carregar registro e solicitar dados faltantes ao acolhedor".
     4. Se todos os dados estiverem presentes, o "plano_de_acao" deve ser "Carregar registro normalmente".
     5. O campo "idade" deve ser um número inteiro. Se estiver vazio, use o valor null no JSON.
+    6. O campo "HouM" deve ser preenchido com 'H' para homem e 'M' para mulher, com base no nome da pessoa. Se não for possível determinar, deixe em branco.
 
     Retorne APENAS um objeto json contendo a data e a lista de objetos JSON, nada mais.
 
@@ -54,7 +67,7 @@ def gerar_arquivo_carga(caminho_arquivo_txt: str):
         print(f"Erro ao enviar dados para o Gemini ou ao receber a resposta: {e}")
         return
 
-    print("\nAnálise do Gemini completa.")
+    print("Análise do Gemini completa.")
 
     try:
         # Limpa a resposta do Gemini para garantir que é um JSON válido
@@ -85,7 +98,7 @@ def gerar_arquivo_carga(caminho_arquivo_txt: str):
         print(f"Arquivo '{nome_arquivo_saida}' gerado com sucesso em '{pasta_base}'.")
 
     except (json.JSONDecodeError, ValueError) as e:
-        print(f"\nErro ao processar a resposta do Gemini ou salvar o arquivo: {e}")
+        print(f"Erro ao processar a resposta do Gemini ou salvar o arquivo: {e}")
         print("Resposta recebida do Gemini:")
         print(response.text)
 
@@ -94,4 +107,4 @@ if __name__ == "__main__":
     # Exemplo de como chamar o script.
     # Pode ser melhorado com argparse para receber o caminho do arquivo como argumento.
     arquivo_de_entrada = "./entrada_dados/adocao-270625.txt"
-    gerar_arquivo_carga(arquivo_de_entrada)
+    gerar_arquivo_carga(caminho_arquivo_txt=arquivo_de_entrada)
