@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import sys
 import io
+import tempfile
 from datetime import datetime
 
 from elo.services.generate_json import gerar_arquivo_carga
@@ -101,21 +102,25 @@ with tab1:
         uploaded_csv = st.file_uploader("Escolha o arquivo acolhedores.csv")
         if st.button("Carregar Acolhedores na Base"):
             if uploaded_csv is not None:
-                # Salva temporariamente para a função poder ler
-                with open("temp_acolhedores.csv", "wb") as f:
-                    f.write(uploaded_csv.getbuffer())
+                # Usa um arquivo temporário para segurança e limpeza automática
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp:
+                    tmp.write(uploaded_csv.getbuffer())
+                    tmp_path = tmp.name
                 
-                with st.spinner("Carregando acolhedores..."):
-                    sucesso, logs = executar_e_capturar_output(
-                        carregar_acolhedores, "temp_acolhedores.csv"
-                    )
-                    if sucesso:
-                        st.success("Acolhedores carregados com sucesso!")
-                    else:
-                        st.error("Falha ao carregar acolhedores.")
-                    with st.expander("Ver Logs da Carga de Acolhedores"):
-                        st.text_area("", logs, height=200)
-                os.remove("temp_acolhedores.csv")
+                try:
+                    with st.spinner("Carregando acolhedores..."):
+                        sucesso, logs = executar_e_capturar_output(
+                            carregar_acolhedores, tmp_path
+                        )
+                        if sucesso:
+                            st.success("Acolhedores carregados com sucesso!")
+                        else:
+                            st.error("Falha ao carregar acolhedores.")
+                        with st.expander("Ver Logs da Carga de Acolhedores"):
+                            st.text_area("", logs, height=200)
+                finally:
+                    # Garante que o arquivo temporário seja removido
+                    os.remove(tmp_path)
             else:
                 st.warning("Por favor, carregue um arquivo .csv primeiro.")
 
