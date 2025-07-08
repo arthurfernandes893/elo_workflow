@@ -56,7 +56,9 @@ CREATE TABLE IF NOT EXISTS acolhimento (
     status_contato VARCHAR(45) DEFAULT 'Pendente',
     observacoes VARCHAR(255),
     id_acolhedor INTEGER,
-    FOREIGN KEY (id_acolhedor) REFERENCES acolhedores(id_acolhedor)
+    HouM VARCHAR(1),
+    FOREIGN KEY (id_acolhedor) REFERENCES acolhedores(id_acolhedor),
+    UNIQUE(nome, data_decisao)
 );
 """
 )
