@@ -68,8 +68,8 @@ def carregar_base_de_dados(data_param: str):
         try:
             cursor.execute(
                 """
-                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor, HouM)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 (
                     reg.get("nome"),
@@ -77,9 +77,13 @@ def carregar_base_de_dados(data_param: str):
                     reg.get("celular"),
                     data_decisao,
                     id_acolhedor_db,
+                    reg.get("HouM"),
                 ),
             )
             logs["sucesso"] += 1
+        except sqlite3.IntegrityError:
+            print(f"LOG: Registro duplicado para '{reg.get('nome')}' na data '{data_decisao}'. Ignorando.")
+            logs["duplicado"] = logs.get("duplicado", 0) + 1
         except sqlite3.Error as e:
             print(f"ERRO SQL ao inserir '{reg.get('nome')}': {e}")
 
