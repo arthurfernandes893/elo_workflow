@@ -1,6 +1,8 @@
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+import os
+SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 def autenticar():
     """Realiza a autenticação com a API do Google Drive."""

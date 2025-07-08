@@ -7,7 +7,6 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 # Permissões necessárias. Se você mudar isso, delete o arquivo token.json.
-SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 import os
 from dotenv import load_dotenv
