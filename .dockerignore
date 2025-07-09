@@ -1,0 +1,29 @@
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Virtualenv
+.venv
+venv
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# IDEs & OS-specific
+.idea
+.vscode
+.DS_Store
+
+# Backups & Data
+backup_bases/
+base_dados/
+entrada_dados/
+*.db
+*.bak*
