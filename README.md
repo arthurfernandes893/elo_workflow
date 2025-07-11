@@ -78,7 +78,7 @@ O projeto é composto por vários módulos, cada um com uma responsabilidade esp
     ```
 4.  **Instale as Dependências:**
     ```bash
-    uv pip install streamlit pandas google-generativeai python-dotenv google-api-python-client google-auth-httplib2 google-auth-oauthlib
+    uv sync
     ```
 5.  **Configure as Variáveis de Ambiente:** Crie um arquivo chamado `.env` na raiz do projeto e preencha com suas chaves e caminhos:
     ```
