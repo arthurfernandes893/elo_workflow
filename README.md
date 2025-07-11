@@ -1,4 +1,4 @@
-# Sistema de Automação para Acolhimento de Igreja
+# ELO - Sistema de Automação para Acolhimento de Igreja
 
 ##  Propósito Principal
 
