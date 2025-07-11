@@ -13,12 +13,13 @@ def carregar_base_de_dados(data_param: str):
     O arquivo é encontrado com base na data fornecida.
     """
     pasta_base = os.getenv("PASTA_BASE")
+    pasta_json = os.getenv("PASTA_JSON")
     if not pasta_base:
         print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
         return
 
     nome_arquivo = f"EloCargaDados_{data_param}.json"
-    caminho_arquivo = os.path.join(pasta_base, nome_arquivo)
+    caminho_arquivo = os.path.join(pasta_json, nome_arquivo)
 
     if not os.path.exists(caminho_arquivo):
         print(f"Erro: Arquivo '{nome_arquivo}' não encontrado na pasta '{pasta_base}'.")

@@ -84,18 +84,18 @@ def gerar_arquivo_carga(caminho_arquivo_txt: Optional[str] = None, dados_entrada
         nome_arquivo_saida = f"EloCargaDados_{data_arquivo.strftime('%d%m%Y')}.json"
 
         # Pega o caminho da pasta base a partir da variável de ambiente
-        pasta_base = os.getenv("PASTA_BASE")
-        if not pasta_base:
+        pasta_json = os.getenv("PASTA_JSON")
+        if not pasta_json:
             raise ValueError("Variável de ambiente PASTA_BASE não definida. Impossível completar o processamento")
 
-        caminho_completo_saida = os.path.join(pasta_base, nome_arquivo_saida)
+        caminho_completo_saida = os.path.join(pasta_json, nome_arquivo_saida)
 
         # Salva o arquivo JSON
         with open(caminho_completo_saida, "w", encoding="utf-8") as f:
             json.dump(dados_estruturados, f, indent=4, ensure_ascii=False)
 
 
-        print(f"Arquivo '{nome_arquivo_saida}' gerado com sucesso em '{pasta_base}'.")
+        print(f"Arquivo '{nome_arquivo_saida}' gerado com sucesso em '{pasta_json}'.")
 
     except (json.JSONDecodeError, ValueError) as e:
         print(f"Erro ao processar a resposta do Gemini ou salvar o arquivo: {e}")
