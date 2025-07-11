@@ -2,9 +2,9 @@
 
 ##  Propósito Principal
 
-Este projeto é uma solução para automatizar o fluxo de trabalho do ministério de acolhimento, inicialmente desenvolvido de forma voluntária por e para os membros da [Primeira Igreja Batista de Iraja](https://www.igrejadeiraja.org.br/). O objetivo é eliminar tarefas manuais, organizar o processo de contato com visitantes e fornecer uma maneira centralizada e eficiente de gerenciar os dados, desde a entrada inicial até o acompanhamento e a sincronização entre múltiplos usuários.
+Este projeto é uma solução para automatizar o fluxo de trabalho do Ministério de Acolhimento - especialmente de adolescentes -, inicialmente desenvolvido de forma voluntária por e para os membros da [Primeira Igreja Batista de Iraja](https://www.igrejadeiraja.org.br/). O objetivo é eliminar tarefas manuais, organizar o processo de contato com visitantes e fornecer uma maneira centralizada e eficiente de gerenciar os dados, desde a entrada inicial até o acompanhamento e a sincronização entre múltiplos usuários.
 
-O sistema utiliza uma combinação de scripts Python, uma base de dados local (SQLite), Inteligência Artificial (Google Gemini) para processamento de linguagem natural e uma interface gráfica amigável (Streamlit) para controle.
+O sistema utiliza uma combinação de scripts Python, uma base de dados local (SQLite), Inteligência Artificial (Google Gemini) para processamento de linguagem natural e uma interface gráfica amigável (Streamlit) para controle. Além de permitir a conexão de visualizadores de dados com a base dados para a construção de dashboards.
 
 ##  Recursos Principais
 
