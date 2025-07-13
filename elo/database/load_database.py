@@ -14,6 +14,8 @@ def carregar_base_de_dados(data_param: str):
     """
     pasta_base = os.getenv("PASTA_BASE")
     pasta_json = os.getenv("PASTA_JSON")
+    nome_db = os.getenv("NOME_BANCO_DADOS")
+
     if not pasta_base:
         print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
         return
@@ -29,7 +31,7 @@ def carregar_base_de_dados(data_param: str):
 
     with open(caminho_arquivo, "r", encoding="utf-8") as f:
         registros = json.load(f)
-        caminho_banco = os.path.join(pasta_base, "igreja_dados.db")
+        caminho_banco = os.path.join(pasta_base, nome_db)
     conn = sqlite3.connect(caminho_banco)
     cursor = conn.cursor()
     # Habilita o suporte a chaves estrangeiras
@@ -50,10 +52,10 @@ def carregar_base_de_dados(data_param: str):
 
         nome_acolhedor = reg.get("acolhedor")
 
-        # Busca o ID do acolhedor no banco de dados
+        # Busca o ID do acolhedor no banco de dados, verificando nome ou apelido
         cursor.execute(
-            "SELECT id_acolhedor FROM acolhedores WHERE acolhedor_nome = ?",
-            (nome_acolhedor,),
+            "SELECT id_acolhedor FROM acolhedores WHERE acolhedor_nome = ? OR acolhedor_apelido = ?",
+            (nome_acolhedor, nome_acolhedor,),
         )
         resultado = cursor.fetchone()
 
@@ -69,8 +71,8 @@ def carregar_base_de_dados(data_param: str):
         try:
             cursor.execute(
                 """
-                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor, HouM)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor, HouM, situacao)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     reg.get("nome"),
@@ -79,6 +81,7 @@ def carregar_base_de_dados(data_param: str):
                     data_decisao,
                     id_acolhedor_db,
                     reg.get("HouM"),
+                    reg.get("situacao"),
                 ),
             )
             logs["sucesso"] += 1
