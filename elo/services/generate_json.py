@@ -43,12 +43,14 @@ def gerar_arquivo_carga(caminho_arquivo_txt: Optional[str] = None, dados_entrada
     Em seguida estruture um campo de nome "lista" a partir dos dados fornecidos seguindo as regras abaixo:
     
     Regras para cada objeto:
-    1. As chaves devem ser "nome", "idade", "celular", "acolhedor", "plano_de_acao" e "HouM".
-    2. Se as informações de "nome" ou "acolhedor" estiverem faltando, o "plano_de_acao" deve ser "Descartar registro por falta de dados essenciais".
-    3. Se as informações de "idade" ou "celular" estiverem faltando (mas "nome" e "acolhedor" estiverem presentes), o "plano_de_acao" deve ser "Carregar registro e solicitar dados faltantes ao acolhedor".
-    4. Se todos os dados estiverem presentes, o "plano_de_acao" deve ser "Carregar registro normalmente".
-    5. O campo "idade" deve ser um número inteiro. Se estiver vazio, use o valor null no JSON.
-    6. O campo "HouM" deve ser preenchido com 'H' para homem e 'M' para mulher, com base no nome da pessoa. Se não for possível determinar, deixe em branco.
+    1. As chaves devem ser "nome", "idade", "celular", "acolhedor", "plano_de_acao", "HouM" e "situacao".
+    2. Se um "apelido" for fornecido e não estiver vazio, use o "apelido" como o valor para a chave "nome". Caso contrário, use o "nome" original.
+    3. Se as informações de "nome" ou "acolhedor" estiverem faltando, o "plano_de_acao" deve ser "Descartar registro por falta de dados essenciais".
+    4. Se as informações de "idade" ou "celular" estiverem faltando (mas "nome" e "acolhedor" estiverem presentes), o "plano_de_acao" deve ser "Carregar registro e solicitar dados faltantes ao acolhedor".
+    5. Se todos os dados estiverem presentes, o "plano_de_acao" deve ser "Carregar registro normalmente".
+    6. O campo "idade" deve ser um número inteiro. Se estiver vazio, use o valor null no JSON.
+    7. O campo "HouM" deve ser preenchido com 'H' para homem e 'M' para mulher, com base no nome da pessoa. Se não for possível determinar, deixe em branco.
+    8. O campo "situacao" deve ser preenchido com um dos seguintes valores: "visitante", "conversao", ou "reconciliacao". Baseie-se no contexto da entrada para determinar a situação.
 
     Retorne APENAS um objeto json contendo a data e a lista de objetos JSON, nada mais.
 
