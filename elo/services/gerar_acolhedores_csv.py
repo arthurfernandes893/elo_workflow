@@ -1,4 +1,3 @@
-import pandas as pd
 import argparse
 import os
 import google.generativeai as genai
@@ -9,80 +8,91 @@ load_dotenv()
 # Configure o Gemini
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-def standardize_leader_name(leader_name, model):
-    """Usa o Gemini para padronizar o nome do líder."""
-    prompt = f"""
-    Padronize o seguinte nome para que ele seja consistente (remova apelidos, títulos e formate como 'Nome Sobrenome'):
-    Nome original: {leader_name}
-    Nome padronizado:
+def gerar_csv_com_llm(caminho_dados: str, caminho_gps: str):
+    """
+    Usa o Gemini para processar os arquivos CSV e gerar um arquivo CSV estruturado.
     """
     try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        print(f"Erro ao padronizar o nome '{leader_name}': {e}")
-        return leader_name
-
-def processar_acolhedores_csv(caminho_dados: str, caminho_gps: str):
-    """
-    Processa os arquivos CSV de acolhedores e GPs para gerar um arquivo CSV estruturado.
-    """
-    try:
-        df_dados = pd.read_csv(caminho_dados)
-        df_gps = pd.read_csv(caminho_gps)
+        with open(caminho_dados, 'r', encoding='utf-8') as f:
+            dados_csv = f.read()
+        with open(caminho_gps, 'r', encoding='utf-8') as f:
+            gps_csv = f.read()
     except FileNotFoundError as e:
         print(f"Erro: Arquivo não encontrado. {e}")
         return
 
-    # Renomear colunas para facilitar o acesso
-    df_dados.columns = [
-        "nome_apelido",
-        "nascimento",
-        "email",
-        "celular",
-        "lider_gp",
-    ]
-    df_gps.columns = ["nome_gp", "lider_gp_padronizado"]
-
-    # Inicializa o modelo Gemini
     model = genai.GenerativeModel(os.getenv("MODEL"))
 
-    # Padroniza os nomes dos líderes em ambos os DataFrames
-    print("Padronizando nomes dos líderes com o Gemini...")
-    df_dados["lider_gp_padronizado"] = df_dados["lider_gp"].apply(
-        lambda x: standardize_leader_name(x, model)
-    )
-    df_gps["lider_gp_padronizado_gemini"] = df_gps["lider_gp_padronizado"].apply(
-        lambda x: standardize_leader_name(x, model)
-    )
+    prompt = f"""
+    Você é um especialista em processamento de dados. Sua única função é receber dois arquivos CSV e retorná-los como um único CSV formatado.
 
-    # Merge dos DataFrames
-    df_merged = pd.merge(
-        df_dados,
-        df_gps,
-        left_on="lider_gp_padronizado",
-        right_on="lider_gp_padronizado_gemini",
-        how="left",
-    )
+    **Arquivo 1 (Dados dos Acolhedores):**
+    (Colunas: `Carimbo_de_data/hora`, `Nome`, `apelido`, `Nascimento`, `email`, `numero`, `Nome_do_lider_de_gp`)
+    ```csv
+    {dados_csv}
+    ```
 
-    # Estrutura final do CSV
-    df_final = df_merged[
-        ["nome_apelido", "nascimento", "email", "celular", "nome_gp"]
-    ]
-    df_final = df_final.rename(
-        columns={
-            "nome_apelido": "NomeCompleto",
-            "nascimento": "Nascimento",
-            "email": "Email",
-            "celular": "Celular",
-            "nome_gp": "GP",
-        }
-    )
+    **Arquivo 2 (Dados dos GPs):**
+    (Colunas: `GPS_name`, `LÍDER_name`)
+    ```csv
+    {gps_csv}
+    ```
 
-    # Salva o arquivo CSV final
-    caminho_saida = "acolhedores_carga.csv"
-    df_final.to_csv(caminho_saida, index=False)
-    print(f"Arquivo '{caminho_saida}' gerado com sucesso!")
+    **Tarefa:**
+
+    1.  **Padronize** os nomes em `Nome_do_lider_de_gp` e `LÍDER_name` para o que estiver em LÍDER_name.
+    3.  **Gere** um novo CSV com as seguintes colunas e mapeamento:
+        *   `Nome` (de `Nome`)
+        *   `Apelido` (de `apelido`)
+        *   `Nascimento` (de `Nascimento`)
+        *   `Email` (de `email`)
+        *   `Celular` (de `numero`)
+        *   `GP` (de `LÍDER_name`)
+
+    **REGRAS DE SAÍDA:**
+    *   **NÃO** inclua o cabeçalho CSV na sua resposta.
+    *   **NÃO** inclua explicações, planos de ação ou qualquer texto extra.
+    *   Sua resposta deve conter **APENAS** os dados CSV brutos, prontos para serem salvos em um arquivo.
+    * NAO inclua cabeçalhos como ```csv ou ```no fim. Retorne raw text para receber o header do csv e ser salvo em arquivo.
+    **Exemplo de Saída:**
+    ```
+"John Doe","Johnny","1990-01-01","john.doe@example.com","(11) 99999-9999","Rafael Ricardo"
+"Jane Smith","Jane","1985-05-20","jane.smith@email.com","(21) 88888-8888","Aline figueiredo"
+    ```
+    """
+
+    print("Enviando dados para o Gemini...")
+    try:
+        response = model.generate_content(prompt)
+        csv_output = response.text.strip()
+
+        # Limpa a saída para remover marcadores de código
+        if csv_output.startswith("```csv"):
+            csv_output = csv_output[6:]
+        if csv_output.endswith("```"):
+            csv_output = csv_output[:-3]
+        csv_output = csv_output.strip()
+
+        # Salva o arquivo CSV final
+        pasta_csv = os.getenv("PASTA_CSV")
+        if not pasta_csv:
+            print("Erro: Variável de ambiente PASTA_CSV não configurada.")
+            return
+
+        caminho_saida = os.path.join(pasta_csv, "acolhedores_carga.csv")
+        
+        # Adiciona o cabeçalho ao arquivo
+        header = "Nome,Apelido,Nascimento,Email,Celular,GP\n"
+        with open(caminho_saida, 'w', encoding='utf-8') as f:
+            f.write(header)
+            f.write(csv_output)
+
+        print(f"Arquivo '{caminho_saida}' gerado com sucesso!")
+        return caminho_saida
+
+    except Exception as e:
+        print(f"Erro ao gerar o CSV com o Gemini: {e}")
+        return None
 
 
 if __name__ == "__main__":
@@ -97,4 +107,4 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    processar_acolhedores_csv(args.data, args.gps)
+    gerar_csv_com_llm(args.data, args.gps)
