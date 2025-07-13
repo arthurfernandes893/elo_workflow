@@ -8,6 +8,7 @@ from datetime import datetime
 from elo.services.generate_json import gerar_arquivo_carga
 from elo.database.load_database import carregar_base_de_dados
 from elo.database.load_acolhedores import carregar_acolhedores
+from elo.database.load_gps import carregar_gps
 from elo.services.send_emails import enviar_notificacoes_personalizadas
 from elo.services.processar_e_gerar_json_respostas import gerar_json_respostas
 from elo.services.carregar_respostas import carregar_respostas_para_base
@@ -100,18 +101,24 @@ def run():
 
         # 1.3 Carregar Acolhedores
         with st.expander("Passo 3: Carregar/Atualizar Acolhedores (Opcional)"):
-            uploaded_csv = st.file_uploader("Escolha o arquivo acolhedores.csv")
+            uploaded_data_csv = st.file_uploader("Escolha o arquivo de dados dos acolhedores (ex: acolhedores_dados.csv)", type=["csv"], key="acolhedores_data_csv")
+            uploaded_gps_csv = st.file_uploader("Escolha o arquivo de dados dos GPs (ex: gps.csv)", type=["csv"], key="gps_csv")
+            
             if st.button("Carregar Acolhedores na Base"):
-                if uploaded_csv is not None:
-                    # Usa um arquivo temporário para segurança e limpeza automática
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp:
-                        tmp.write(uploaded_csv.getbuffer())
-                        tmp_path = tmp.name
+                if uploaded_data_csv is not None and uploaded_gps_csv is not None:
+                    # Usa arquivos temporários para segurança e limpeza automática
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp_data:
+                        tmp_data.write(uploaded_data_csv.getbuffer())
+                        tmp_data_path = tmp_data.name
+                    
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp_gps:
+                        tmp_gps.write(uploaded_gps_csv.getbuffer())
+                        tmp_gps_path = tmp_gps.name
                     
                     try:
                         with st.spinner("Carregando acolhedores..."):
                             sucesso, logs = executar_e_capturar_output(
-                                carregar_acolhedores, tmp_path
+                                carregar_acolhedores, tmp_data_path, tmp_gps_path
                             )
                             if sucesso:
                                 st.success("Acolhedores carregados com sucesso!")
@@ -120,10 +127,37 @@ def run():
                             with st.expander("Ver Logs da Carga de Acolhedores"):
                                 st.text_area("", logs, height=200)
                     finally:
-                        # Garante que o arquivo temporário seja removido
-                        os.remove(tmp_path)
+                        # Garante que os arquivos temporários sejam removidos
+                        os.remove(tmp_data_path)
+                        os.remove(tmp_gps_path)
                 else:
-                    st.warning("Por favor, carregue um arquivo .csv primeiro.")
+                    st.warning("Por favor, carregue ambos os arquivos .csv (dados dos acolhedores e dados dos GPs) primeiro.")
+
+        # 1.4 Carregar GPs
+        with st.expander("Passo 4: Carregar/Atualizar GPs (Opcional)"):
+            uploaded_gps_data_csv = st.file_uploader("Escolha o arquivo de dados dos GPs (ex: gps_data.csv)", type=["csv"], key="gps_data_csv")
+            
+            if st.button("Carregar GPs na Base"):
+                if uploaded_gps_data_csv is not None:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp_gps_data:
+                        tmp_gps_data.write(uploaded_gps_data_csv.getbuffer())
+                        tmp_gps_data_path = tmp_gps_data.name
+                    
+                    try:
+                        with st.spinner("Carregando GPs..."):
+                            sucesso, logs = executar_e_capturar_output(
+                                carregar_gps, tmp_gps_data_path
+                            )
+                            if sucesso:
+                                st.success("GPs carregados com sucesso!")
+                            else:
+                                st.error("Falha ao carregar GPs.")
+                            with st.expander("Ver Logs da Carga de GPs"):
+                                st.text_area("", logs, height=200)
+                    finally:
+                        os.remove(tmp_gps_data_path)
+                else:
+                    st.warning("Por favor, carregue o arquivo .csv de dados dos GPs.")
 
     # --- Aba 2: Comunicação ---
     with tab2:
