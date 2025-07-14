@@ -55,14 +55,14 @@ CREATE TABLE IF NOT EXISTS acolhimento (
     nome VARCHAR(70) NOT NULL,
     idade INTEGER,
     numero VARCHAR(45),
-    decisao VARCHAR(45),
+    situacao VARCHAR(45),
     data_decisao DATETIME NOT NULL,
     data_carga DATETIME DEFAULT CURRENT_TIMESTAMP,
     status_contato VARCHAR(45) DEFAULT 'Pendente',
     observacoes VARCHAR(255),
     id_acolhedor INTEGER,
     HouM VARCHAR(1),
-    situacao VARCHAR(45),
+    evento VARCHAR(45),
     FOREIGN KEY (id_acolhedor) REFERENCES acolhedores(id_acolhedor),
     UNIQUE(nome, data_decisao)
 );

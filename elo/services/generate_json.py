@@ -39,7 +39,8 @@ def gerar_arquivo_carga(caminho_arquivo_txt: Optional[str] = None, dados_entrada
     Analise a lista semi-estruturada de pessoas abaixo e converta-a em uma lista de objetos JSON.
 
     No começo da lista deve estar a data daquela lista. No json gerado deve ser o primeiro campo, de nome "data", a conter essa informação.
-    Se não houver uma informação, retorne esse campo definido para uma string vazia: ""
+    Abaixo da data, deve haver o nome do evento. Os valores possíveis são: ['conectados', 'congresso_inove', 'congresso_tdc','acampa','revolucao']. O nome do campo no JSON deve ser "evento".
+    Se não houver uma informação de data ou evento, retorne esse campo definido para uma string vazia: ""
     Em seguida estruture um campo de nome "lista" a partir dos dados fornecidos seguindo as regras abaixo:
     
     Regras para cada objeto:
@@ -52,7 +53,7 @@ def gerar_arquivo_carga(caminho_arquivo_txt: Optional[str] = None, dados_entrada
     7. O campo "HouM" deve ser preenchido com 'H' para homem e 'M' para mulher, com base no nome da pessoa. Se não for possível determinar, deixe em branco.
     8. O campo "situacao" deve ser preenchido com um dos seguintes valores: "visitante", "conversao", ou "reconciliacao". Baseie-se no contexto da entrada para determinar a situação.
 
-    Retorne APENAS um objeto json contendo a data e a lista de objetos JSON, nada mais.
+    Retorne APENAS um objeto json contendo a data, o evento e a lista de objetos JSON, nada mais.
 
     Dados de Entrada:
     ---
