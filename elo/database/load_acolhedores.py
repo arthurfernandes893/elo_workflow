@@ -3,7 +3,7 @@ import dotenv
 import sqlite3
 import csv
 import argparse
-from utils import normalizar_string
+from .utils import normalizar_string
 
 dotenv.load_dotenv()
 

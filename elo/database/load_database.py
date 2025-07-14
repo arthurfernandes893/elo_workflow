@@ -3,7 +3,7 @@ import json
 import os
 import argparse
 from dotenv import load_dotenv
-from utils import normalizar_string
+from .utils import normalizar_string
 
 load_dotenv()
 
