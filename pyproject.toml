@@ -1,5 +1,5 @@
 [project]
-name = "automacao-acolhimento"
+name = "eloApp"
 version = "0.1.0"
 description = "Welcoming workflow automation for middle-sized churches using Google Gemini as Data Structurer and streamlit as UI provider"
 readme = "README.md"
@@ -11,3 +11,11 @@ dependencies = [
     "streamlit>=1.46.1",
     "streamlit-authenticator>=0.4.2",
 ]
+
+[project.scripts]
+eloapp = "eloApp.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+

@@ -1,10 +1,10 @@
 import os
 import sys
 from dotenv import load_dotenv
-
+from .elo.database.setup_database import setup
 load_dotenv(verbose=True)
 
-def main():
+def check_environment():
     # Define required environment variables
     required_vars = [
         "GEMINI_API_KEY",
@@ -40,6 +40,8 @@ def main():
             if not os.path.isdir(dir) and os.path.exists(dir):
                 print(f"Creating directory: {dir}")
                 os.makedirs(dir)
+            else:
+                print(f"Directory already exists: {data_dir}")
     else:
         print(f"Directory already exists: {data_dir}")
 
@@ -54,7 +56,7 @@ def main():
         print("\nError: The following required environment variables are not set or are empty:")
         for var in missing_vars:
             print(f"- {var}")
-        sys.exit(1) # Exit with an error code
+        return False
     else:
         print("All required environment variables are set.")
 
@@ -66,11 +68,11 @@ def main():
     # Check for the existence of the files themselves
     if not os.path.isfile(gdrive_creds_path):
         print(f"Error: Google Drive credentials file not found at path: {gdrive_creds_path}")
-        sys.exit(1)
+        return False
 
     if not os.path.isfile(google_creds_path):
         print(f"Error: Google Application credentials file not found at path: {google_creds_path}")
-        sys.exit(1)
+        return False
 
     # Check if token.json exists within the same directory as GDrive credentials
     gdrive_dir = os.path.dirname(gdrive_creds_path)
@@ -81,7 +83,17 @@ def main():
     else:
         print("Warning: 'token.json' not found. The application may need to go through the OAuth flow on first run.")
 
-    print("\nEnvironment setup check complete.")
+    DB_PATH = os.path.join(os.getenv("PASTA_BASE"), os.getenv("NOME_BANCO_DADOS"))
+    if os.path.exists(DB_PATH) and os.path.isfile(DB_PATH):
+        print(f"\nDatabase {os.getenv("NOME_BANCO_DADOS")} já existe.")
+    else:
+        msg = setup()
+        print(msg)
+
+    print("\nEnvironment and Database setup check complete.")
+    return True
+
+ 
 
 if __name__ == "__main__":
-    main()
+    check_environment()

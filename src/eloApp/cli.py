@@ -1,11 +1,14 @@
 import argparse
+import subprocess
+import os
+from .build_environment import check_environment
 
 # Importa as funções principais dos outros scripts.
 # Cada script deve ter sua lógica principal dentro de uma função para que possa ser importada.
-from elo.services.generate_json import gerar_arquivo_carga
-from elo.database.load_database import carregar_base_de_dados
-from elo.database.load_acolhedores import carregar_acolhedores
-from elo.services.send_emails import enviar_notificacoes_personalizadas
+from .elo.services.generate_json import gerar_arquivo_carga
+from .elo.database.load_database import carregar_base_de_dados
+from .elo.database.load_acolhedores import carregar_acolhedores
+from .elo.services.send_emails import enviar_notificacoes_personalizadas
 
 
 def main():
@@ -58,6 +61,12 @@ def main():
         help="Verifica por visitantes pendentes e dispara os e-mails para os acolhedores.",
     )
 
+    # --- Comando 5: Rodar Dashboard ---
+    parser_dashboard = subparsers.add_parser(
+        "run_dashboard",
+        help="Verifica o ambiente e inicia o painel de controle (Streamlit).",
+    )
+
     # Processa os argumentos fornecidos pelo usuário
     args = parser.parse_args()
 
@@ -75,6 +84,16 @@ def main():
     elif args.comando == "disparar_emails":
         print("Iniciando o disparo de e-mails...")
         enviar_notificacoes_personalizadas()
+
+    elif args.comando == "run_dashboard":
+        print("Verificando o ambiente antes de iniciar o dashboard...")
+        if check_environment():
+            print("Ambiente verificado com sucesso. Iniciando o Streamlit...")
+            # Constrói o caminho para o app_dashboard.py relativo ao cli.py
+            dashboard_path = os.path.join(os.path.dirname(__file__), "app_dashboard.py")
+            subprocess.run(["streamlit", "run", dashboard_path])
+        else:
+            print("A verificação do ambiente falhou. O dashboard não será iniciado.")
 
     print("--- Comando Concluído ---")
 
