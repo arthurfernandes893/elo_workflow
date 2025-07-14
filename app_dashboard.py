@@ -52,7 +52,7 @@ def run():
     "*Meninas*\nNome:\nIdade:\nNumero:\nAcolhedor:\n....\n" \
     "```" \
     "\n2. Para carregar um acolhimento para o banco de dados, selecione a data do culto informada na lista" \
-    "\n3. Para atualizar o cadastro de membros, utilize o passo 3 fornecendo um arquivo `.csv` contendo as informações dos membros")
+    "\n3. Para atualizar o cadastro de membros, utilize o passo 4 fornecendo um arquivo `.csv` contendo as informações dos membros")
 
     # --- Layout em Abas ---
     tab1, tab2, tab3 = st.tabs(["1. Carga de Dados", "2. Comunicação", "3. Sincronização com Drive"])
