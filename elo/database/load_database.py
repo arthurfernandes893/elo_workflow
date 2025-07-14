@@ -3,8 +3,21 @@ import json
 import os
 import argparse
 from dotenv import load_dotenv
+import unicodedata
+import re
 
 load_dotenv()
+
+def normalizar_string(s):
+    """Normaliza uma string: minúsculas, sem acentos, sem espaços extras e com underscores."""
+    if not isinstance(s, str):
+        return ""
+    nfkd_form = unicodedata.normalize('NFKD', s)
+    sem_acentos = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+    sem_acentos = re.sub(r'[^a-zA-Z0-9_]', '', sem_acentos)
+    sem_espacos_extra = re.sub(r'\s+', ' ', sem_acentos).strip()
+    com_underscore = sem_espacos_extra.replace(' ', '_')
+    return com_underscore.lower()
 
 
 def carregar_base_de_dados(data_param: str):
@@ -39,6 +52,7 @@ def carregar_base_de_dados(data_param: str):
 
     logs = {"sucesso": 0, "descartado": 0, "erros_acolhedor": 0}
     data_decisao = registros["data"]
+    evento = registros.get("evento", "")
 
     for reg in registros["lista"]:
         plano = reg.get("plano_de_acao", "")
@@ -51,6 +65,8 @@ def carregar_base_de_dados(data_param: str):
             continue
 
         nome_acolhedor = reg.get("acolhedor")
+        if nome_acolhedor:
+            nome_acolhedor = normalizar_string(nome_acolhedor)
 
         # Busca o ID do acolhedor no banco de dados, verificando nome ou apelido
         cursor.execute(
@@ -71,8 +87,8 @@ def carregar_base_de_dados(data_param: str):
         try:
             cursor.execute(
                 """
-                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor, HouM, situacao)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor, HouM, situacao, evento)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     reg.get("nome"),
@@ -82,6 +98,7 @@ def carregar_base_de_dados(data_param: str):
                     id_acolhedor_db,
                     reg.get("HouM"),
                     reg.get("situacao"),
+                    evento,
                 ),
             )
             logs["sucesso"] += 1
