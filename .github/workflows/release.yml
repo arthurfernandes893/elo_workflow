@@ -1,0 +1,63 @@
+name: Python Release
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  push:
+    tags:
+      - 'v*' # Triggers on tags like v1.0.0
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Required to create a release and upload artifacts
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      run: |
+        pip install uv
+
+    - name: Build project with uv
+      run: |
+        uv build
+
+    - name: Debug dist directory
+      run: ls -lh dist || echo "dist directory not found"
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          This release includes the latest build of the automacao-acolhimento project.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Python build artifacts to Release
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/*.whl
+        asset_name: elo_workflow-${{ github.ref_name }}.whl
+        asset_content_type: application/zip
+
+    - name: Upload Python source distribution to Release
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/*.tar.gz
+        asset_name: elo_workflow-${{ github.ref_name }}.tar.gz
+        asset_content_type: application/gzip

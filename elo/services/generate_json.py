@@ -39,18 +39,21 @@ def gerar_arquivo_carga(caminho_arquivo_txt: Optional[str] = None, dados_entrada
     Analise a lista semi-estruturada de pessoas abaixo e converta-a em uma lista de objetos JSON.
 
     No começo da lista deve estar a data daquela lista. No json gerado deve ser o primeiro campo, de nome "data", a conter essa informação.
-    Se não houver uma informação, retorne esse campo definido para uma string vazia: ""
+    Abaixo da data, deve haver o nome do evento. Os valores possíveis são: ['conectados', 'congresso_inove', 'congresso_tdc','acampa','revolucao']. O nome do campo no JSON deve ser "evento".
+    Se não houver uma informação de data ou evento, retorne esse campo definido para uma string vazia: ""
     Em seguida estruture um campo de nome "lista" a partir dos dados fornecidos seguindo as regras abaixo:
     
     Regras para cada objeto:
-    1. As chaves devem ser "nome", "idade", "celular", "acolhedor", "plano_de_acao" e "HouM".
-    2. Se as informações de "nome" ou "acolhedor" estiverem faltando, o "plano_de_acao" deve ser "Descartar registro por falta de dados essenciais".
-    3. Se as informações de "idade" ou "celular" estiverem faltando (mas "nome" e "acolhedor" estiverem presentes), o "plano_de_acao" deve ser "Carregar registro e solicitar dados faltantes ao acolhedor".
-    4. Se todos os dados estiverem presentes, o "plano_de_acao" deve ser "Carregar registro normalmente".
-    5. O campo "idade" deve ser um número inteiro. Se estiver vazio, use o valor null no JSON.
-    6. O campo "HouM" deve ser preenchido com 'H' para homem e 'M' para mulher, com base no nome da pessoa. Se não for possível determinar, deixe em branco.
+    1. As chaves devem ser "nome", "idade", "celular", "acolhedor", "plano_de_acao", "HouM" e "situacao".
+    2. Se um "apelido" for fornecido e não estiver vazio, use o "apelido" como o valor para a chave "nome". Caso contrário, use o "nome" original.
+    3. Se as informações de "nome" ou "acolhedor" estiverem faltando, o "plano_de_acao" deve ser "Descartar registro por falta de dados essenciais".
+    4. Se as informações de "idade" ou "celular" estiverem faltando (mas "nome" e "acolhedor" estiverem presentes), o "plano_de_acao" deve ser "Carregar registro e solicitar dados faltantes ao acolhedor".
+    5. Se todos os dados estiverem presentes, o "plano_de_acao" deve ser "Carregar registro normalmente".
+    6. O campo "idade" deve ser um número inteiro. Se estiver vazio, use o valor null no JSON.
+    7. O campo "HouM" deve ser preenchido com 'H' para homem e 'M' para mulher, com base no nome da pessoa. Se não for possível determinar, deixe em branco.
+    8. O campo "situacao" deve ser preenchido com um dos seguintes valores: "visitante", "conversao", ou "reconciliacao". Baseie-se no contexto da entrada para determinar a situação.
 
-    Retorne APENAS um objeto json contendo a data e a lista de objetos JSON, nada mais.
+    Retorne APENAS um objeto json contendo a data, o evento e a lista de objetos JSON, nada mais.
 
     Dados de Entrada:
     ---
@@ -84,18 +87,18 @@ def gerar_arquivo_carga(caminho_arquivo_txt: Optional[str] = None, dados_entrada
         nome_arquivo_saida = f"EloCargaDados_{data_arquivo.strftime('%d%m%Y')}.json"
 
         # Pega o caminho da pasta base a partir da variável de ambiente
-        pasta_base = os.getenv("PASTA_BASE")
-        if not pasta_base:
+        pasta_json = os.getenv("PASTA_JSON")
+        if not pasta_json:
             raise ValueError("Variável de ambiente PASTA_BASE não definida. Impossível completar o processamento")
 
-        caminho_completo_saida = os.path.join(pasta_base, nome_arquivo_saida)
+        caminho_completo_saida = os.path.join(pasta_json, nome_arquivo_saida)
 
         # Salva o arquivo JSON
         with open(caminho_completo_saida, "w", encoding="utf-8") as f:
             json.dump(dados_estruturados, f, indent=4, ensure_ascii=False)
 
 
-        print(f"Arquivo '{nome_arquivo_saida}' gerado com sucesso em '{pasta_base}'.")
+        print(f"Arquivo '{nome_arquivo_saida}' gerado com sucesso em '{pasta_json}'.")
 
     except (json.JSONDecodeError, ValueError) as e:
         print(f"Erro ao processar a resposta do Gemini ou salvar o arquivo: {e}")

@@ -3,9 +3,9 @@ import json
 import os
 import argparse
 from dotenv import load_dotenv
+from .utils import normalizar_string
 
 load_dotenv()
-
 
 def carregar_base_de_dados(data_param: str):
     """
@@ -13,12 +13,15 @@ def carregar_base_de_dados(data_param: str):
     O arquivo é encontrado com base na data fornecida.
     """
     pasta_base = os.getenv("PASTA_BASE")
+    pasta_json = os.getenv("PASTA_JSON")
+    nome_db = os.getenv("NOME_BANCO_DADOS")
+
     if not pasta_base:
         print("Erro: Variável de ambiente PASTA_BASE não está configurada.")
         return
 
     nome_arquivo = f"EloCargaDados_{data_param}.json"
-    caminho_arquivo = os.path.join(pasta_base, nome_arquivo)
+    caminho_arquivo = os.path.join(pasta_json, nome_arquivo)
 
     if not os.path.exists(caminho_arquivo):
         print(f"Erro: Arquivo '{nome_arquivo}' não encontrado na pasta '{pasta_base}'.")
@@ -28,7 +31,7 @@ def carregar_base_de_dados(data_param: str):
 
     with open(caminho_arquivo, "r", encoding="utf-8") as f:
         registros = json.load(f)
-        caminho_banco = os.path.join(pasta_base, "igreja_dados.db")
+        caminho_banco = os.path.join(pasta_base, nome_db)
     conn = sqlite3.connect(caminho_banco)
     cursor = conn.cursor()
     # Habilita o suporte a chaves estrangeiras
@@ -36,6 +39,7 @@ def carregar_base_de_dados(data_param: str):
 
     logs = {"sucesso": 0, "descartado": 0, "erros_acolhedor": 0}
     data_decisao = registros["data"]
+    evento = registros.get("evento", "")
 
     for reg in registros["lista"]:
         plano = reg.get("plano_de_acao", "")
@@ -48,11 +52,13 @@ def carregar_base_de_dados(data_param: str):
             continue
 
         nome_acolhedor = reg.get("acolhedor")
+        if nome_acolhedor:
+            nome_acolhedor = normalizar_string(nome_acolhedor)
 
-        # Busca o ID do acolhedor no banco de dados
+        # Busca o ID do acolhedor no banco de dados, verificando nome ou apelido
         cursor.execute(
-            "SELECT id_acolhedor FROM acolhedores WHERE acolhedor_nome = ?",
-            (nome_acolhedor,),
+            "SELECT id_acolhedor FROM acolhedores WHERE acolhedor_nome = ? OR acolhedor_apelido = ?",
+            (nome_acolhedor, nome_acolhedor,),
         )
         resultado = cursor.fetchone()
 
@@ -68,8 +74,8 @@ def carregar_base_de_dados(data_param: str):
         try:
             cursor.execute(
                 """
-                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor, HouM)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO acolhimento (nome, idade, numero, data_decisao, id_acolhedor, HouM, situacao, evento)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     reg.get("nome"),
@@ -78,6 +84,8 @@ def carregar_base_de_dados(data_param: str):
                     data_decisao,
                     id_acolhedor_db,
                     reg.get("HouM"),
+                    reg.get("situacao"),
+                    evento,
                 ),
             )
             logs["sucesso"] += 1

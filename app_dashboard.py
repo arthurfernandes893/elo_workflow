@@ -2,12 +2,14 @@ import streamlit as st
 import os
 import sys
 import io
+import csv
 import tempfile
 from datetime import datetime
-
+import sqlite3
 from elo.services.generate_json import gerar_arquivo_carga
 from elo.database.load_database import carregar_base_de_dados
 from elo.database.load_acolhedores import carregar_acolhedores
+from elo.database.load_gps import carregar_gps
 from elo.services.send_emails import enviar_notificacoes_personalizadas
 from elo.services.processar_e_gerar_json_respostas import gerar_json_respostas
 from elo.services.carregar_respostas import carregar_respostas_para_base
@@ -46,10 +48,11 @@ def run():
     st.markdown("Use esta interface para executar os diferentes passos do fluxo de trabalho." \
     "\n1. Para salvar os acolhimentos, use o passo 1 e cole a lista gerada, no formato:\n" \
     "```bash\n" \
-    "Data: dd/mm/yyyy \n\nNome:\nIdade:\nNumero:\nAcolhedor:\n....\n" \
+    "Data: dd/mm/yyyy \n\nEvento: conectados\n\n*Meninos*\nNome:\nIdade:\nNumero:\nAcolhedor:\n....\n" \
+    "*Meninas*\nNome:\nIdade:\nNumero:\nAcolhedor:\n....\n" \
     "```" \
     "\n2. Para carregar um acolhimento para o banco de dados, selecione a data do culto informada na lista" \
-    "\n3. Para atualizar o cadastro de membros, utilize o passo 3 fornecendo um arquivo `.csv` contendo as informações dos membros")
+    "\n3. Para atualizar o cadastro de membros, utilize o passo 4 fornecendo um arquivo `.csv` contendo as informações dos membros")
 
     # --- Layout em Abas ---
     tab1, tab2, tab3 = st.tabs(["1. Carga de Dados", "2. Comunicação", "3. Sincronização com Drive"])
@@ -98,32 +101,97 @@ def run():
                 else:
                     st.warning("Por favor, selecione a data do arquivo.")
 
-        # 1.3 Carregar Acolhedores
-        with st.expander("Passo 3: Carregar/Atualizar Acolhedores (Opcional)"):
-            uploaded_csv = st.file_uploader("Escolha o arquivo acolhedores.csv")
-            if st.button("Carregar Acolhedores na Base"):
-                if uploaded_csv is not None:
-                    # Usa um arquivo temporário para segurança e limpeza automática
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp:
-                        tmp.write(uploaded_csv.getbuffer())
-                        tmp_path = tmp.name
+        # 1.3 Gerar CSV de Acolhedores
+        with st.expander("Passo 3: Gerar CSV de Acolhedores (com Gemini)", expanded=True):
+            uploaded_raw_acolhedores_csv = st.file_uploader("Escolha o arquivo CSV bruto dos acolhedores (ex: acolhedores_dados.csv)", type=["csv"], key="raw_acolhedores_csv")
+            
+            if st.button("Gerar acolhedores_carga.csv"):
+                if uploaded_raw_acolhedores_csv is not None:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp_raw_data:
+                        tmp_raw_data.write(uploaded_raw_acolhedores_csv.getbuffer())
+                        tmp_raw_data_path = tmp_raw_data.name
                     
                     try:
-                        with st.spinner("Carregando acolhedores..."):
+                        # Query GPS data from DB
+                        conn = sqlite3.connect(os.path.join(os.getenv("PASTA_BASE"), os.getenv("NOME_BANCO_DADOS")))
+                        cursor = conn.cursor()
+                        cursor.execute("SELECT id_gps, nome_lider_gps FROM gps")
+                        gps_data = cursor.fetchall()
+                        conn.close()
+
+                        if not gps_data:
+                            st.error("Erro: A tabela de GPs está vazia. Carregue os GPs primeiro.")
+                        else:
+                            output = io.StringIO()
+                            writer = csv.writer(output)
+                            writer.writerow(["id_gps", "nome_lider_gps"])
+                            writer.writerows(gps_data)
+                            gps_data_string = output.getvalue()
+
+                            with st.spinner("Gerando acolhedores_carga.csv com Gemini..."):
+                                # Call gerar_csv_com_llm
+                                from elo.services.gerar_acolhedores_csv import gerar_csv_com_llm
+                                caminho_saida_csv = gerar_csv_com_llm(tmp_raw_data_path, gps_data_string)
+                                
+                                if caminho_saida_csv:
+                                    st.success(f"Arquivo '{os.path.basename(caminho_saida_csv)}' gerado com sucesso em {os.path.dirname(caminho_saida_csv)}!")
+                                else:
+                                    st.error("Falha ao gerar acolhedores_carga.csv.")
+                    except Exception as e:
+                        st.error(f"Ocorreu um erro inesperado durante a geração do CSV: {e}")
+                    finally:
+                        os.remove(tmp_raw_data_path)
+                else:
+                    st.warning("Por favor, carregue o arquivo CSV bruto dos acolhedores.")
+
+        # 1.4 Carregar Acolhedores no Banco de Dados
+        with st.expander("Passo 4: Carregar Acolhedores no Banco de Dados", expanded=True):
+            st.info("Certifique-se de que 'acolhedores_carga.csv' foi gerado no passo anterior.")
+            
+            # Assuming acolhedores_carga.csv is saved in PASTA_CSV
+            pasta_csv = os.getenv("PASTA_CSV")
+            caminho_acolhedores_carga_csv = os.path.join(pasta_csv, "acolhedores_carga.csv")
+
+            if st.button("Carregar acolhedores_carga.csv na Base"):
+                if os.path.exists(caminho_acolhedores_carga_csv):
+                    with st.spinner("Carregando acolhedores no banco de dados..."):
+                        sucesso, logs = executar_e_capturar_output(
+                            carregar_acolhedores, caminho_acolhedores_carga_csv
+                        )
+                        if sucesso:
+                            st.success("Acolhedores carregados com sucesso no banco de dados!")
+                        else:
+                            st.error("Falha ao carregar acolhedores no banco de dados.")
+                        with st.expander("Ver Logs da Carga de Acolhedores"):
+                            st.text_area("", logs, height=200)
+                else:
+                    st.warning(f"Arquivo '{os.path.basename(caminho_acolhedores_carga_csv)}' não encontrado. Por favor, gere-o no Passo 3 primeiro.")
+
+        # 1.4 Carregar GPs
+        with st.expander("Passo 4: Carregar/Atualizar GPs (Opcional)"):
+            uploaded_gps_data_csv = st.file_uploader("Escolha o arquivo de dados dos GPs (ex: gps_data.csv)", type=["csv"], key="gps_data_csv")
+            
+            if st.button("Carregar GPs na Base"):
+                if uploaded_gps_data_csv is not None:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".csv", mode="wb") as tmp_gps_data:
+                        tmp_gps_data.write(uploaded_gps_data_csv.getbuffer())
+                        tmp_gps_data_path = tmp_gps_data.name
+                    
+                    try:
+                        with st.spinner("Carregando GPs..."):
                             sucesso, logs = executar_e_capturar_output(
-                                carregar_acolhedores, tmp_path
+                                carregar_gps, tmp_gps_data_path
                             )
                             if sucesso:
-                                st.success("Acolhedores carregados com sucesso!")
+                                st.success("GPs carregados com sucesso!")
                             else:
-                                st.error("Falha ao carregar acolhedores.")
-                            with st.expander("Ver Logs da Carga de Acolhedores"):
+                                st.error("Falha ao carregar GPs.")
+                            with st.expander("Ver Logs da Carga de GPs"):
                                 st.text_area("", logs, height=200)
                     finally:
-                        # Garante que o arquivo temporário seja removido
-                        os.remove(tmp_path)
+                        os.remove(tmp_gps_data_path)
                 else:
-                    st.warning("Por favor, carregue um arquivo .csv primeiro.")
+                    st.warning("Por favor, carregue o arquivo .csv de dados dos GPs.")
 
     # --- Aba 2: Comunicação ---
     with tab2:

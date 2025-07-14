@@ -21,7 +21,7 @@ O sistema foi projetado para ser operado através do painel de controle (`app_da
 
 1.  **Configuração Inicial (Feita uma única vez):**
     * Executa-se o script `setup_database.py` para criar o banco de dados.
-    * Prepara-se um arquivo `acolhedores.csv` com os dados da equipe e usa-se o dashboard para carregá-los na base.
+    * Prepara-se os arquivos `acolhedores_dados.csv` (com os dados da equipe) e `gps.csv` (com os dados dos líderes de GP) e usa-se o dashboard para carregá-los na base.
 
 2.  **Ciclo Semanal de Visitantes:**
     * Um usuário cria um arquivo `.txt` simples com as informações dos novos visitantes.
@@ -49,7 +49,7 @@ O projeto é composto por vários módulos, cada um com uma responsabilidade esp
 
 -   `load_database.py`: Lê o arquivo `elo-carga_<data>.json` e insere os registros de novos visitantes na tabela `acolhimento`.
 
--   `load_acolhedores.py`: Lê um arquivo `acolhedores.csv` e carrega/atualiza os dados dos membros da equipe na tabela `acolhedores`.
+-   `load_acolhedores.py`: Lê os arquivos `acolhedores_dados.csv` e `gps.csv` e carrega/atualiza os dados dos membros da equipe na tabela `acolhedores`.
 
 -   `send_emails.py`: Conecta-se a um servidor SMTP para enviar e-mails de notificação personalizados para os acolhedores.
 
@@ -158,15 +158,17 @@ Além do painel de controle, você pode executar cada script Python diretamente 
     # Exemplo: python load_database.py base_dados/elo-carga_2023-10-27.json
     ```
 
--   **`load_acolhedores.py`**: Carrega dados de acolhedores de um CSV para o banco de dados. Pode usar uma variável de ambiente ou argumento.
+-   **`load_acolhedores.py`**: Carrega dados de acolhedores de CSVs para o banco de dados.
     ```bash
-    # Opção 1: Usando variável de ambiente (recomendado para automação)
-    export ACOLHEDORES_CSV_PATH="entrada_dados/acolhedores.csv" # macOS/Linux
-    # set ACOLHEDORES_CSV_PATH="entrada_dados/acolhedores.csv" # Windows
+    # Opção 1: Usando variáveis de ambiente (recomendado para automação)
+    export ACOLHEDORES_DADOS_CSV_PATH="entrada_dados/acolhedores_dados.csv" # macOS/Linux
+    export GPS_CSV_PATH="entrada_dados/gps.csv" # macOS/Linux
+    # set ACOLHEDORES_DADOS_CSV_PATH="entrada_dados/acolhedores_dados.csv" # Windows
+    # set GPS_CSV_PATH="entrada_dados/gps.csv" # Windows
     python load_acolhedores.py
 
-    # Opção 2: Passando o caminho como argumento
-    python load_acolhedores.py --caminho_csv entrada_dados/acolhedores.csv
+    # Opção 2: Passando os caminhos como argumentos
+    python load_acolhedores.py --caminho_dados_csv entrada_dados/acolhedores_dados.csv --caminho_gps_csv entrada_dados/gps.csv
     ```
 
 **Comunicação e Acompanhamento:**

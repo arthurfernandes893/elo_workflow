@@ -39,6 +39,7 @@ cursor.execute(
 CREATE TABLE IF NOT EXISTS acolhedores (
     id_acolhedor INTEGER PRIMARY KEY AUTOINCREMENT,
     acolhedor_nome VARCHAR(45) NOT NULL,
+    acolhedor_apelido VARCHAR(45),
     acolhedor_email VARCHAR(45) NOT NULL UNIQUE,
     id_gps INTEGER,
     FOREIGN KEY (id_gps) REFERENCES gps(id_gps)
@@ -54,13 +55,14 @@ CREATE TABLE IF NOT EXISTS acolhimento (
     nome VARCHAR(70) NOT NULL,
     idade INTEGER,
     numero VARCHAR(45),
-    decisao VARCHAR(45),
+    situacao VARCHAR(45),
     data_decisao DATETIME NOT NULL,
     data_carga DATETIME DEFAULT CURRENT_TIMESTAMP,
     status_contato VARCHAR(45) DEFAULT 'Pendente',
     observacoes VARCHAR(255),
     id_acolhedor INTEGER,
     HouM VARCHAR(1),
+    evento VARCHAR(45),
     FOREIGN KEY (id_acolhedor) REFERENCES acolhedores(id_acolhedor),
     UNIQUE(nome, data_decisao)
 );
@@ -69,6 +71,7 @@ CREATE TABLE IF NOT EXISTS acolhimento (
 
 print("Banco de dados e tabelas verificados/criados com sucesso.")
 
+'''
 # --- Povoamento Inicial (Exemplo) ---
 # Você precisa ter pelo menos um grupo e um acolhedor para o sistema funcionar.
 # Execute esta parte apenas uma vez ou quando precisar adicionar mais membros.
@@ -96,3 +99,4 @@ except sqlite3.IntegrityError:
 
 conn.commit()
 conn.close()
+'''
