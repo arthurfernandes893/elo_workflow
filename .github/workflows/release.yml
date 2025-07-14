@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # Allows manual triggering
   push:
     tags:
-      - 'v*' # Triggers on tags like v1.0.0
+      - 'v*.*.*' # Triggers on tags like v1.0.0, v1.2.3
 
 jobs:
   build-and-release:
@@ -26,12 +26,16 @@ jobs:
       run: |
         pip install uv
 
-    - name: Build project with uv
+    - name: Build Python project with uv
       run: |
         uv build
 
     - name: Debug dist directory
       run: ls -lh dist || echo "dist directory not found"
+
+    - name: Extract version from Git tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
     - name: Create GitHub Release
       id: create_release
@@ -51,7 +55,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dist/*.whl
-        asset_name: elo_workflow-${{ github.ref_name }}.whl
+        asset_name: elo_workflow-${{ steps.get_version.outputs.VERSION }}.whl
         asset_content_type: application/zip
 
     - name: Upload Python source distribution to Release
@@ -59,5 +63,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: dist/*.tar.gz
-        asset_name: elo_workflow-${{ github.ref_name }}.tar.gz
+        asset_name: elo_workflow-${{ steps.get_version.outputs.VERSION }}.tar.gz
         asset_content_type: application/gzip
