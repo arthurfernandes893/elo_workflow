@@ -3,22 +3,9 @@ import json
 import os
 import argparse
 from dotenv import load_dotenv
-import unicodedata
-import re
+from utils import normalizar_string
 
 load_dotenv()
-
-def normalizar_string(s):
-    """Normaliza uma string: minúsculas, sem acentos, sem espaços extras e com underscores."""
-    if not isinstance(s, str):
-        return ""
-    nfkd_form = unicodedata.normalize('NFKD', s)
-    sem_acentos = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
-    sem_acentos = re.sub(r'[^a-zA-Z0-9_]', '', sem_acentos)
-    sem_espacos_extra = re.sub(r'\s+', ' ', sem_acentos).strip()
-    com_underscore = sem_espacos_extra.replace(' ', '_')
-    return com_underscore.lower()
-
 
 def carregar_base_de_dados(data_param: str):
     """

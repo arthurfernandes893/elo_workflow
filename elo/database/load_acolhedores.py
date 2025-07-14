@@ -3,22 +3,9 @@ import dotenv
 import sqlite3
 import csv
 import argparse
-import unicodedata
-import re
-import io
+from utils import normalizar_string
 
 dotenv.load_dotenv()
-
-def normalizar_string(s):
-    """Normaliza uma string: minúsculas, sem acentos, sem espaços extras e com underscores."""
-    if not isinstance(s, str):
-        return ""
-    nfkd_form = unicodedata.normalize('NFKD', s)
-    sem_acentos = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
-    sem_acentos = re.sub(r'[^a-zA-Z0-9_]', '', sem_acentos)
-    sem_espacos_extra = re.sub(r'\s+', ' ', sem_acentos).strip()
-    com_underscore = sem_espacos_extra.replace(' ', '_')
-    return com_underscore.lower()
 
 def verificar_variaveis_ambiente():
     """Verifica se todas as variáveis de ambiente necessárias estão configuradas."""
