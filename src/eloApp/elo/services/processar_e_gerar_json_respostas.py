@@ -11,8 +11,8 @@ load_dotenv()
 
 # Configurações
 IMAP_SERVER = "imap.gmail.com"
-EMAIL_CONTA = os.getenv("EMAIL_REMETENTE")  # A conta que recebe as respostas
-SENHA_EMAIL = os.getenv("SENHA_EMAIL")
+EMAIL_CONTA = os.getenv("EMAIL_USER")  # A conta que recebe as respostas
+EMAIL_PASS = os.getenv("EMAIL_PASS")
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
@@ -26,7 +26,7 @@ def gerar_json_respostas():
 
     try:
         mail = imaplib.IMAP4_SSL(IMAP_SERVER)
-        mail.login(EMAIL_CONTA, SENHA_EMAIL)
+        mail.login(EMAIL_CONTA, EMAIL_PASS)
         mail.select("inbox")
 
         # Procura por e-mails não lidos

@@ -31,8 +31,8 @@ def enviar_notificacoes_personalizadas():
         conn.close()
         return
 
-    remetente = os.getenv("EMAIL_REMETENTE")
-    senha = os.getenv("SENHA_EMAIL")
+    remetente = os.getenv("EMAIL_USER")
+    senha = os.getenv("EMAIL_PASS")
 
     for _, acolhedor in acolhedores_a_notificar.iterrows():
         id_acolhedor = acolhedor['id_acolhedor']
