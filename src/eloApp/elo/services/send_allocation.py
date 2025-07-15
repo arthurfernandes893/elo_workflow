@@ -139,7 +139,7 @@ def send_allocation_email(start_date, end_date):
         msg = MIMEMultipart()
         msg['From'] = from_email
         msg['To'] = ", ".join(to_emails)
-        msg['Subject'] = f"Alocação dos Acolhedores - {datetime.date.today().strftime("%d%m%Y")}"
+        msg['Subject'] = f"Alocação dos Acolhedores - {datetime.date.today().strftime("%d/%m/%Y")}"
 
         body = "Segue em anexo a alocação dos acolhedores nos dias de congresso.\n Atenção para não alocar acolhedores no vermelho\n\nAtenciosamente, Ministerio ELO"
         msg.attach(MIMEText(body, 'plain'))
