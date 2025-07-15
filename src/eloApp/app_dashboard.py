@@ -4,7 +4,7 @@ import sys
 import io
 import csv
 import tempfile
-from datetime import datetime
+from datetime import datetime, timedelta
 import sqlite3
 from elo.services.generate_json import gerar_arquivo_carga
 from elo.database.load_database import carregar_base_de_dados
@@ -15,6 +15,7 @@ from elo.services.processar_e_gerar_json_respostas import gerar_json_respostas
 from elo.services.carregar_respostas import carregar_respostas_para_base
 from elo.services.upload_drive import upload_arquivo_db
 from elo.services.download_drive import download_arquivo_db
+from elo.services.send_allocation import send_allocation_email
 
 
 # --- Função Utilitária para Capturar Logs ---
@@ -240,6 +241,32 @@ def run():
                             st.text_area("", logs, height=150)
                 else:
                     st.warning("Por favor, selecione a data do arquivo.")
+
+        # 2.4 Enviar Alocação
+        with st.expander("Enviar Relatório de Alocação de Acolhedores", expanded=True):
+            st.info("Selecione o período para o relatório de alocações pendentes.")
+            col1, col2 = st.columns(2)
+            with col1:
+                start_date_alloc = st.date_input("Data de Início", value=datetime.now() - timedelta(days=30))
+            with col2:
+                end_date_alloc = st.date_input("Data de Fim", value=datetime.now())
+
+            if st.button("Enviar Relatório de Alocação"):
+                if start_date_alloc and end_date_alloc:
+                    with st.spinner("Gerando e enviando relatório de alocação..."):
+                        sucesso, logs = executar_e_capturar_output(
+                            send_allocation_email, 
+                            start_date=start_date_alloc.strftime('%Y-%m-%d'), 
+                            end_date=end_date_alloc.strftime('%Y-%m-%d')
+                        )
+                        if sucesso:
+                            st.success("Relatório de alocação enviado com sucesso!")
+                        else:
+                            st.error("Falha no envio do relatório de alocação.")
+                        with st.expander("Ver Logs do Envio"):
+                            st.text_area("", logs, height=150)
+                else:
+                    st.warning("Por favor, selecione as datas de início e fim.")
 
     # --- Aba 3: Sincronização com Google Drive ---
     with tab3:
