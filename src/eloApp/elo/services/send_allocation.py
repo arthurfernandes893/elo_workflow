@@ -23,7 +23,7 @@ def verificar_variaveis_ambiente():
 
 dotenv.load_dotenv(verbose=True)
 
-def getPendingAllocations() -> pd.DataFrame:
+def getPendingAllocations(start_date, end_date) -> pd.DataFrame:
     if not verificar_variaveis_ambiente():
         return
 
@@ -41,17 +41,17 @@ def getPendingAllocations() -> pd.DataFrame:
         cursor = conn.cursor()
         cursor.execute("PRAGMA foreign_keys = ON;")
 
-        print(f"Iniciando Query dos Acolhimentos Pendentes")
+        print(f"Iniciando Query dos Acolhimentos Pendentes entre {start_date} e {end_date}")
         
-        query = ("SELECT acc.data_decisao, acc.evento, acc.HouM, acc.status_contato, "
+        query = (f"SELECT acc.data_decisao, acc.evento, acc.HouM, acc.status_contato, "
          "a.acolhedor_nome, g.nome_lider_gps "
          "FROM acolhimento AS acc "
          "LEFT JOIN acolhedores a ON a.id_acolhedor = acc.id_acolhedor "
          "LEFT JOIN gps AS g ON g.id_gps = a.id_gps "
          "WHERE acc.status_contato = 'Pendente' "
-         "AND (acc.data_decisao >= '2025-06-30' OR acc.data_decisao <= '2025-07-17');")
+         f"AND acc.data_decisao >= '{start_date}' OR acc.data_decisao <='{end_date}';")
 
-        df = pd.read_sql(query,conn)
+        df = pd.read_sql(query, conn)
         return df
     except Exception as e:
         print(f"\n--- ERRO INESPERADO DURANTE A LEITURA DO BANCO DE DADOS ---")
@@ -64,20 +64,20 @@ def getPendingAllocations() -> pd.DataFrame:
             conn.close()
 
 
-def getCountPendingAllocations():
-    df = getPendingAllocations()
+def getCountPendingAllocations(start_date, end_date):
+    df = getPendingAllocations(start_date, end_date)
     if df is None:
         return None
 
     pending_counts = df.groupby('acolhedor_nome').size().reset_index(name='acolhimentos_pendentes')
     return pending_counts
 
-def plot_pending_allocations_as_jpeg():
+def plot_pending_allocations_as_jpeg(start_date, end_date):
     """
     Generates a JPEG image of a table with conditional formatting for pending allocations
     and saves it to a temporary file.
     """
-    df = getCountPendingAllocations()
+    df = getCountPendingAllocations(start_date, end_date)
     if df is None or df.empty:
         print("Não há dados de alocações pendentes para gerar o relatório.")
         return None
@@ -113,14 +113,14 @@ def plot_pending_allocations_as_jpeg():
         print(f"Erro ao salvar o arquivo JPEG temporário: {e}")
         return None
 
-def send_allocation_email():
+def send_allocation_email(start_date, end_date):
     """
     Sends an email with the pending allocations report (as a JPEG image) to a list of recipients.
     """
     if not verificar_variaveis_ambiente():
         return
 
-    attachment_path = plot_pending_allocations_as_jpeg()
+    attachment_path = plot_pending_allocations_as_jpeg(start_date, end_date)
     if not attachment_path:
         print("Não foi possível gerar o anexo. E-mail não enviado.")
         return
@@ -162,8 +162,6 @@ def send_allocation_email():
         if attachment_path and os.path.exists(attachment_path):
             os.remove(attachment_path)
             print(f"Arquivo temporário removido: {attachment_path}")
-
-send_allocation_email()
 
 '''
 if __name__ == "__main__":
