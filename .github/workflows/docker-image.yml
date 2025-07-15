@@ -2,10 +2,10 @@ name: Docker Image CI
 
 on:
   workflow_dispatch: # Allows manual triggering of the workflow
-  push:
-    branches: [ "main" ]
+  #push:
+    #branches: [ "main" ]
   pull_request:
-    branches: [ "main" , "docker"]
+    branches: [ "main"]
 
 jobs:
 
